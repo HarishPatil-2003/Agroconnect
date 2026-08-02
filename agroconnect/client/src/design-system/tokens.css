@@ -1,0 +1,216 @@
+﻿/* ================================================================
+   AgroConnect Design System — tokens.css
+   Single source of truth for all design tokens
+   Import this FIRST in index.css
+   ================================================================ */
+
+:root {
+  /* Brand Colors */
+  --color-primary-50:  #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-500: #22c55e;
+  --color-primary-600: #1fa64b;
+  --color-primary-700: #15803d;
+  --color-secondary-500: #3b82f6;
+  --color-secondary-600: #2563eb;
+
+  /* Semantic */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger:  #dc2626;
+  --color-info:    #0284c7;
+
+  /* Surface */
+  --color-bg:        #f8fafc;
+  --color-bg-body:   #f8fafc;
+  --color-surface:   #ffffff;
+  --color-surface-2: #f1f5f9;
+  --color-surface-3: #e2e8f0;
+
+  /* Text */
+  --color-text-primary:   #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted:     #94a3b8;
+  --color-text-inverse:   #ffffff;
+
+  /* Border */
+  --color-border:       #e2e8f0;
+  --color-border-focus: #1fa64b;
+  --color-border-glow:  rgba(31, 166, 75, 0.2);
+
+  /* Glass */
+  --color-glass-bg:     rgba(255, 255, 255, 0.80);
+  --color-glass-border: rgba(255, 255, 255, 0.40);
+
+  /* Semantic Aliases (backward compat) */
+  --green-primary:  var(--color-primary-600);
+  --green-dark:     var(--color-primary-700);
+  --green-light:    var(--color-primary-50);
+  --green-accent:   var(--color-primary-500);
+  --blue-primary:   var(--color-secondary-600);
+  --blue-accent:    var(--color-secondary-500);
+  --bg:             var(--color-bg);
+  --bg-body:        var(--color-bg-body);
+  --bg-card:        var(--color-surface);
+  --text-dark:      var(--color-text-primary);
+  --text-primary:   var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --border:         var(--color-border);
+  --border-glow:    var(--color-border-glow);
+
+  /* Gradients */
+  --gradient-primary:   linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-500) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--color-secondary-600) 0%, var(--color-secondary-500) 100%);
+  --gradient-hero:      linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-secondary-600) 100%);
+  --gradient-green:     linear-gradient(135deg, #1FA64B 0%, #22C55E 100%);
+  --gradient-blue:      linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+  --gradient-card:      linear-gradient(135deg, #EAF8EE 0%, #E0F2FE 100%);
+  --gradient-glow:      radial-gradient(circle, rgba(31,166,75,0.08) 0%, transparent 60%);
+
+  /* Spacing Scale (8px base) */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Spacing Aliases */
+  --spacing-4:  var(--space-1);
+  --spacing-8:  var(--space-2);
+  --spacing-12: var(--space-3);
+  --spacing-16: var(--space-4);
+  --spacing-20: var(--space-5);
+  --spacing-24: var(--space-6);
+  --spacing-32: var(--space-8);
+  --spacing-48: var(--space-12);
+  --spacing-64: var(--space-16);
+  --spacing-80: var(--space-20);
+
+  /* Typography */
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Poppins', 'Inter', sans-serif;
+  --font-heading: var(--font-display);
+  --font-body:    var(--font-sans);
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md:   1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
+  --text-5xl:  3rem;
+  --text-6xl:  3.75rem;
+  --text-7xl:  4.5rem;
+
+  --weight-regular:   400;
+  --weight-medium:    500;
+  --weight-semibold:  600;
+  --weight-bold:      700;
+  --weight-extrabold: 800;
+  --weight-black:     900;
+
+  --leading-tight:   1.25;
+  --leading-snug:    1.375;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.625;
+
+  /* Border Radius */
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   16px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-2xl:  36px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs:    0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.05);
+  --shadow-md:    0 8px 24px rgba(15,23,42,0.06), 0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg:    0 16px 40px rgba(15,23,42,0.08), 0 4px 12px rgba(15,23,42,0.04);
+  --shadow-xl:    0 32px 72px rgba(15,23,42,0.10), 0 8px 24px rgba(15,23,42,0.05);
+  --shadow-glass: 0 8px 32px rgba(31,38,135,0.04);
+  --shadow-hover: 0 20px 60px rgba(15,23,42,0.12);
+  --shadow-green: 0 8px 28px rgba(31,166,75,0.25);
+  --shadow-blue:  0 8px 28px rgba(37,99,235,0.25);
+
+  /* Transitions */
+  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast:   150ms;
+  --duration-normal: 280ms;
+  --duration-slow:   400ms;
+
+  --transition:        all var(--duration-slow)   var(--ease-default);
+  --transition-fast:   all var(--duration-fast)   var(--ease-smooth);
+  --transition-smooth: all var(--duration-normal) var(--ease-smooth);
+
+  /* Layout */
+  --navbar-h:       80px;
+  --sidebar-w:      260px;
+  --container-xl:   1280px;
+  --container-2xl:  1400px;
+  --btn-h-sm:   36px;
+  --btn-h-md:   44px;
+  --btn-h:      48px;
+  --btn-h-lg:   56px;
+
+  /* Z-Index */
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-overlay:  500;
+  --z-modal:    1000;
+  --z-toast:    2000;
+}
+
+/* Dark Theme */
+body.dark {
+  --color-bg:        #070c15;
+  --color-bg-body:   #070c15;
+  --color-surface:   #0f1623;
+  --color-surface-2: #161f2e;
+  --color-surface-3: #1e2940;
+
+  --color-text-primary:   #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted:     #64748b;
+
+  --color-border:       #1e2940;
+  --color-border-focus: #22c55e;
+  --color-border-glow:  rgba(34, 197, 94, 0.2);
+
+  --color-glass-bg:     rgba(10, 15, 28, 0.85);
+  --color-glass-border: rgba(255, 255, 255, 0.05);
+  --color-primary-50:   rgba(31, 166, 75, 0.08);
+
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.30);
+  --shadow-md:    0 8px 24px rgba(0,0,0,0.35);
+  --shadow-lg:    0 16px 40px rgba(0,0,0,0.45);
+  --shadow-xl:    0 32px 72px rgba(0,0,0,0.55);
+  --shadow-glass: 0 8px 32px rgba(0,0,0,0.30);
+  --shadow-hover: 0 20px 60px rgba(0,0,0,0.50);
+  --shadow-green: 0 8px 28px rgba(34,197,94,0.15);
+  --shadow-blue:  0 8px 28px rgba(59,130,246,0.15);
+
+  --bg:             var(--color-bg);
+  --bg-body:        var(--color-bg-body);
+  --bg-card:        var(--color-surface);
+  --text-dark:      var(--color-text-primary);
+  --text-primary:   var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --border:         var(--color-border);
+  --border-glow:    var(--color-border-glow);
+  --green-light:    var(--color-primary-50);
+  --gradient-glow:  radial-gradient(circle, rgba(34,197,94,0.05) 0%, transparent 60%);
+}

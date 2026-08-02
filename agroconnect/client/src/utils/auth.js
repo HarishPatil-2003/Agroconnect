@@ -1,14 +1,15 @@
 import axios from "axios";
 
-// Axios instance using proxy (backend on 5001)
+// Axios instance using config/proxy (backend on 5001)
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_URL || "/api",
+  timeout: 10000, // 10 seconds timeout limit
 });
 
-// Attach JWT token automatically   checking only data available or not
+// Attach JWT token automatically
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -19,13 +20,25 @@ api.interceptors.request.use(
 
 // Auth helper methods
 export const auth = {
-  // Register user
+  // Register user (Triggers OTP email)
   register: async (userData) => {
     const res = await api.post("/auth/register", userData);
+    return res.data;
+  },
+
+  // Verify OTP
+  verifyOtp: async (email, otp) => {
+    const res = await api.post("/auth/verify-otp", { email, otp });
     if (res.data.token) {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
     }
+    return res.data;
+  },
+
+  // Resend OTP
+  resendOtp: async (email) => {
+    const res = await api.post("/auth/resend-otp", { email });
     return res.data;
   },
 
@@ -39,21 +52,39 @@ export const auth = {
     return res.data;
   },
 
+  // Forgot Password
+  forgotPassword: async (email) => {
+    const res = await api.post("/auth/forgot-password", { email });
+    return res.data;
+  },
+
+  // Reset Password
+  resetPassword: async (email, otp, newPassword) => {
+    const res = await api.post("/auth/reset-password", { email, otp, newPassword });
+    return res.data;
+  },
+
   // Logout user
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
   },
 
   // Get logged-in user
   getCurrentUser: () => {
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+      return user ? JSON.parse(user) : null;
+    } catch (e) {
+      console.warn("Failed to parse user from storage:", e);
+      return null;
+    }
   },
 
-  // ✅ THIS FIXES THE CRASH
   isAuthenticated: () => {
-    return !!localStorage.getItem("token");
+    return !!(localStorage.getItem("token") || sessionStorage.getItem("token"));
   },
 };
 

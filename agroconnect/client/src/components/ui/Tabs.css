@@ -1,0 +1,138 @@
+/* ================================================================
+   UI Component — Tabs.css
+   ================================================================ */
+
+/* ── Base Tabs Container ─────────────────────────────────────── */
+.ds-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ds-tabs::-webkit-scrollbar { display: none; }
+
+.ds-tab-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-secondary);
+  position: relative;
+  transition: color var(--duration-normal) var(--ease-smooth);
+  white-space: nowrap;
+  outline: none;
+}
+
+.ds-tab-trigger:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+.ds-tab-trigger--active {
+  color: var(--color-primary-600);
+}
+
+.ds-tab-icon { display: flex; align-items: center; }
+
+.ds-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  padding: 0 6px;
+  color: var(--color-text-secondary);
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.ds-tab-trigger--active .ds-tab-count {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+/* ── Tab Panel ───────────────────────────────────────────────── */
+.ds-tab-panel {
+  animation: ds-fade-in-up 240ms var(--ease-default) both;
+}
+
+/* ── Underline Variant ───────────────────────────────────────── */
+.ds-tabs--underline {
+  border-bottom: 2px solid var(--color-border);
+  gap: var(--space-8);
+  padding-bottom: 1px;
+}
+
+.ds-tabs--underline .ds-tab-trigger {
+  padding: var(--space-3) 0;
+}
+
+.ds-tab-underline {
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-primary-600);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+.ds-tab-trigger--active .ds-tab-underline { transform: scaleX(1); }
+
+/* ── Pill Variant ────────────────────────────────────────────── */
+.ds-tabs--pill {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  gap: var(--space-1);
+}
+
+.ds-tabs--pill .ds-tab-trigger {
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.ds-tabs--pill .ds-tab-trigger--active {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Card Variant ────────────────────────────────────────────── */
+.ds-tabs--card {
+  gap: var(--space-2);
+}
+
+.ds-tabs--card .ds-tab-trigger {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid transparent;
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.ds-tabs--card .ds-tab-trigger--active {
+  background: var(--color-primary-50);
+  border-color: var(--color-border-glow);
+  color: var(--color-primary-600);
+}
+
+.ds-tabs--card .ds-tab-trigger:hover:not(.ds-tab-trigger--active) {
+  background: var(--color-surface-2);
+}
+
+/* ── Size Variants ───────────────────────────────────────────── */
+.ds-tabs--sm .ds-tab-trigger { font-size: var(--text-sm); }
+.ds-tabs--md .ds-tab-trigger { font-size: var(--text-base); }
+.ds-tabs--lg .ds-tab-trigger { font-size: var(--text-lg); }

@@ -1,0 +1,140 @@
+/* ================================================================
+   LoadingScreen.css — Premium AgroConnect Loading Overlay
+   ================================================================ */
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg, #f8fafc);
+  gap: 32px;
+  transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+body.dark .loading-screen {
+  background: var(--color-bg, #070c15);
+}
+
+.loading-screen.fade-out {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+/* Background aurora effect */
+.loading-screen__bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.loading-screen__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: blob-drift-1 12s ease-in-out infinite;
+}
+
+.loading-screen__blob--1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(31,166,75,0.12) 0%, transparent 70%);
+  top: -150px; left: -100px;
+  animation-name: blob-drift-1;
+  animation-duration: 14s;
+}
+
+.loading-screen__blob--2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(37,99,235,0.10) 0%, transparent 70%);
+  bottom: -100px; right: -80px;
+  animation-name: blob-drift-2;
+  animation-duration: 18s;
+}
+
+.loading-screen__blob--3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%);
+  top: 40%; left: 40%;
+  animation-name: blob-drift-3;
+  animation-duration: 10s;
+}
+
+/* Logo group */
+.loading-screen__logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.loading-screen__icon-wrap {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #1FA64B 0%, #22C55E 100%);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 0 rgba(31,166,75,0.4);
+  animation: loading-leaf-grow 0.8s cubic-bezier(0.34,1.56,0.64,1) both, glow-pulse 2s ease-in-out 0.8s infinite;
+}
+
+.loading-screen__icon-svg {
+  width: 44px;
+  height: 44px;
+  color: #ffffff;
+}
+
+.loading-screen__brand {
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-text-primary, #0f172a);
+  letter-spacing: -0.03em;
+  animation: loading-text-reveal 0.6s var(--ease-default, cubic-bezier(0.16,1,0.3,1)) 0.4s both;
+}
+
+body.dark .loading-screen__brand {
+  color: #f1f5f9;
+}
+
+.loading-screen__tagline {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted, #94a3b8);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: loading-text-reveal 0.6s var(--ease-default, cubic-bezier(0.16,1,0.3,1)) 0.55s both;
+}
+
+/* Progress bar */
+.loading-screen__progress-wrap {
+  width: 240px;
+  height: 3px;
+  background: var(--color-border, #e2e8f0);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  animation: loading-text-reveal 0.4s ease 0.6s both;
+}
+
+body.dark .loading-screen__progress-wrap {
+  background: rgba(255,255,255,0.08);
+}
+
+.loading-screen__progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1FA64B, #22C55E, #06b6d4, #3B82F6);
+  background-size: 300% 100%;
+  animation: loading-progress 1.2s cubic-bezier(0.4,0,0.2,1) forwards,
+             aurora-shift 2s ease-in-out infinite;
+}

@@ -1,5 +1,7 @@
 const express = require('express');
 const { auth, roleAuth } = require('../middleware/auth');
+const { validate } = require('../middleware/validate');
+const { placeBidBuyerSchema } = require('../utils/validators');
 const Product = require('../models/Product');
 const Bid = require('../models/Bid');
 
@@ -53,13 +55,18 @@ router.get('/products', auth, roleAuth(['buyer']), async (req, res) => {
 /**
  * Place a Bid
  */
-router.post('/bids', auth, roleAuth(['buyer']), async (req, res) => {
+router.post('/bids', auth, roleAuth(['buyer']), validate(placeBidBuyerSchema), async (req, res) => {
   const { productId, amount } = req.body;
 
   try {
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
+    }
+
+    if (product.farmer.toString() === req.user.id) {
+      console.warn(`🔒 [UNAUTHORIZED SELF BID ATTEMPT] Farmer ${req.user.id} tried to bid on their own product ${product._id} via buyer bids`);
+      return res.status(403).json({ message: 'Forbidden: You cannot bid on your own product' });
     }
 
     if (product.status !== 'active' || product.biddingEndTime < new Date()) {

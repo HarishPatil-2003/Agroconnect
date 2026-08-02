@@ -1,0 +1,105 @@
+/* Premium Pill Dark Mode Toggle (Glassmorphism) */
+.theme-toggle-pill {
+  position: relative;
+  width: 58px;
+  height: 30px; /* Exact size requested */
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.theme-toggle-pill:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.theme-toggle-pill--dark {
+  background: rgba(17, 24, 39, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-pill--dark:hover {
+  background: rgba(17, 24, 39, 0.6);
+  box-shadow: 0 4px 16px rgba(31, 166, 75, 0.3);
+  border-color: rgba(31, 166, 75, 0.3);
+}
+
+.theme-toggle-thumb {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  background: #ffffff; 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.2);
+  transform: translateX(0);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+}
+
+.theme-toggle-thumb svg {
+  display: block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+body.dark .theme-toggle-thumb {
+  background: #1e293b;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.6);
+}
+
+.theme-toggle-pill--dark .theme-toggle-thumb {
+  transform: translateX(28px);
+}
+
+/* Green glow inside track when ON */
+.theme-toggle-pill::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(31,166,75,0.7) 0%, rgba(22,163,74,0.7) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.theme-toggle-pill--dark::before {
+  opacity: 1;
+}
+
+.theme-toggle-ripple {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: theme-toggle-ripple-anim 0.6s linear;
+  pointer-events: none;
+  z-index: 3;
+}
+
+@keyframes theme-toggle-ripple-anim {
+  to {
+    transform: translate(-50%, -50%) scale(5);
+    opacity: 0;
+  }
+}

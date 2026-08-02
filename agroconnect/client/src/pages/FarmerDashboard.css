@@ -1,0 +1,407 @@
+/* ==========================================================================
+   Premium AI-Powered Farmer Dashboard (My Listings)
+   Matches Global Pill Design System
+   ========================================================================== */
+
+/* ── 1. Hero Background & Mesh Gradient ──────────────────────────────────── */
+.farmer-dashboard-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-bg);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fd-mesh {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(at 10% 20%, rgba(31, 166, 75, 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 10%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+    radial-gradient(at 40% 80%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+  background-size: 200% 200%;
+  animation: fd-mesh-shift 15s ease-in-out infinite;
+  filter: blur(40px);
+}
+
+@keyframes fd-mesh-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.fd-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  will-change: transform;
+}
+
+.fd-orb-1 {
+  width: 400px; height: 400px;
+  background: rgba(31, 166, 75, 0.1);
+  top: -100px; left: -100px;
+  animation: fd-float 20s infinite ease-in-out alternate;
+}
+
+.fd-orb-2 {
+  width: 500px; height: 500px;
+  background: rgba(37, 99, 235, 0.08);
+  bottom: -150px; right: -100px;
+  animation: fd-float 25s infinite ease-in-out alternate-reverse;
+}
+
+@keyframes fd-float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(50px, 80px) scale(1.1); }
+}
+
+
+/* ── 2. Dashboard Main Container (48px Radius) ────────────────────────── */
+.fd-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 48px;
+  box-shadow: 
+    0 24px 64px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  animation: ds-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+body.dark .fd-container {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+
+/* ── 3. Cinematic Hero Heading (Left to Right Stagger) ────────────────── */
+.fd-header {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.fd-title-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.fd-word {
+  opacity: 0;
+  display: inline-block;
+  animation: fd-word-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Stagger for each word */
+.fd-word:nth-child(1) { animation-delay: 0.35s; }
+.fd-word:nth-child(2) { animation-delay: 0.45s; }
+.fd-word:nth-child(3) { animation-delay: 0.55s; }
+.fd-word:nth-child(4) { animation-delay: 0.65s; }
+
+@keyframes fd-word-reveal {
+  0% {
+    opacity: 0;
+    transform: translate(-20px, 30px) scale(0.96);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.fd-subtitle {
+  margin-top: 12px;
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  opacity: 0;
+  animation: ds-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards;
+}
+
+
+/* ── 4. Premium Pill Navigation Tabs ──────────────────────────────────── */
+.fd-tabs-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: ds-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.15s forwards;
+}
+
+.fd-tab {
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+body.dark .fd-tab {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.fd-tab:hover {
+  transform: translateY(-2px) scale(1.02);
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 20px rgba(31, 166, 75, 0.08);
+}
+
+body.dark .fd-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.fd-tab.active {
+  color: #fff;
+  background: linear-gradient(135deg, #1FA64B 0%, #16a34a 100%);
+  border-color: transparent;
+  box-shadow: 0 8px 24px rgba(31, 166, 75, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+
+/* ── 5. Statistics Cards (36px Radius) ────────────────────────────────── */
+.fd-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: ds-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
+}
+
+.fd-stat-card {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 36px;
+  padding: 28px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.03);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+body.dark .fd-stat-card {
+  background: rgba(30, 41, 59, 0.4);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.fd-stat-card:hover {
+  transform: translateY(-4px) rotateX(2deg) rotateY(2deg);
+  box-shadow: 0 20px 40px rgba(31, 166, 75, 0.08), 0 0 0 1px rgba(31, 166, 75, 0.1);
+}
+
+.fd-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.fd-stat-icon.primary { background: rgba(31, 166, 75, 0.1); color: #1FA64B; }
+.fd-stat-icon.info    { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.fd-stat-icon.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.fd-stat-icon.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+.fd-stat-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.fd-stat-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+
+/* ── 6. Table Container (36px Radius) & Premium Action Button ─────────── */
+.fd-content-area {
+  opacity: 0;
+  animation: ds-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
+}
+
+.fd-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.fd-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #1FA64B 0%, #16a34a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(31, 166, 75, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.fd-add-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(31, 166, 75, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.fd-add-btn:active {
+  transform: scale(0.98);
+}
+
+
+/* Table */
+.fd-table-container {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 36px;
+  padding: 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.04);
+  overflow-x: auto;
+}
+
+body.dark .fd-table-container {
+  background: rgba(30, 41, 59, 0.3);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.fd-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.fd-table th {
+  padding: 16px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.fd-table td {
+  padding: 16px 24px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+body.dark .fd-table td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Rounded rows */
+.fd-table tbody tr td:first-child { border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+.fd-table tbody tr td:last-child { border-top-right-radius: 20px; border-bottom-right-radius: 20px; }
+
+.fd-table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.fd-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+body.dark .fd-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+
+/* ── 7. Status Badges (999px) ─────────────────────────────────────────── */
+.fd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.fd-badge.active { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.fd-badge.sold   { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.fd-badge.pending{ background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.fd-badge.default{ background: var(--color-surface-2); color: var(--color-text-secondary); }
+
+
+/* ── 8. Empty State Premium ───────────────────────────────────────────── */
+.fd-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  animation: fd-float-empty 6s ease-in-out infinite;
+}
+
+@keyframes fd-float-empty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.fd-empty-icon {
+  width: 80px; height: 80px;
+  background: rgba(31, 166, 75, 0.1);
+  color: #1FA64B;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.fd-empty-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.fd-empty-desc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  max-width: 300px;
+  margin-bottom: 24px;
+}

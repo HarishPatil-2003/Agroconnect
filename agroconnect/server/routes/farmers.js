@@ -1,5 +1,8 @@
 const express = require('express');
 const { auth, roleAuth } = require('../middleware/auth');
+const { uploadLimiter } = require('../middleware/rateLimiter');
+const { validate } = require('../middleware/validate');
+const { productCreateSchema } = require('../utils/validators');
 const Product = require('../models/Product');
 const Bid = require('../models/Bid');
 
@@ -26,7 +29,7 @@ router.get('/dashboard', auth, roleAuth(['farmer']), async (req, res) => {
 });
 
 // ✅ Create new product for bidding (FIXED)
-router.post('/products', auth, roleAuth(['farmer']), async (req, res) => {
+router.post('/products', auth, roleAuth(['farmer']), uploadLimiter, validate(productCreateSchema), async (req, res) => {
   const {
     name,
     description,
@@ -36,6 +39,7 @@ router.post('/products', auth, roleAuth(['farmer']), async (req, res) => {
     basePrice,
     biddingEndTime,
     images,
+    image,
     location
   } = req.body;
 
@@ -51,6 +55,7 @@ router.post('/products', auth, roleAuth(['farmer']), async (req, res) => {
       currentBid: basePrice,   
       biddingEndTime,
       images,
+      image,
       location,
       status: 'active'          
     });
@@ -77,13 +82,15 @@ router.get('/products', auth, roleAuth(['farmer']), async (req, res) => {
 // Update product
 router.put('/products/:id', auth, roleAuth(['farmer']), async (req, res) => {
   try {
-    const product = await Product.findOne({
-      _id: req.params.id,
-      farmer: req.user.id
-    });
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
+    }
+
+    if (product.farmer.toString() !== req.user.id) {
+      console.warn(`🔒 [UNAUTHORIZED UPDATE ATTEMPT] User ${req.user.id} tried to update product ${req.params.id} owned by farmer ${product.farmer}`);
+      return res.status(403).json({ message: 'Forbidden: You do not own this product' });
     }
 
     Object.assign(product, req.body);
@@ -99,15 +106,18 @@ router.put('/products/:id', auth, roleAuth(['farmer']), async (req, res) => {
 // Delete product
 router.delete('/products/:id', auth, roleAuth(['farmer']), async (req, res) => {
   try {
-    const product = await Product.findOneAndDelete({
-      _id: req.params.id,
-      farmer: req.user.id
-    });
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
+    if (product.farmer.toString() !== req.user.id) {
+      console.warn(`🔒 [UNAUTHORIZED DELETE ATTEMPT] User ${req.user.id} tried to delete product ${req.params.id} owned by farmer ${product.farmer}`);
+      return res.status(403).json({ message: 'Forbidden: You do not own this product' });
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
     res.json({ message: 'Product deleted' });
   } catch (err) {
     console.error(err.message);

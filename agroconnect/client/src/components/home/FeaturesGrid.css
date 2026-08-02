@@ -1,0 +1,134 @@
+/* ── Features Section ── */
+.feat-section {
+  background: var(--bg);
+  position: relative;
+  z-index: 2;
+}
+
+.feat-section__header {
+  max-width: 600px;
+  margin: 0 auto 56px;
+}
+
+.feat-section__title {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.feat-section__subtitle {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.feat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.feat-card__icon-container {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  transition: all 0.3s var(--ease-spring);
+}
+
+.feat-card__title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.feat-card__desc {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Feature Colors */
+.feat-card--green .feat-card__icon-container { background: #e6f7ed; color: #16a34a; }
+.feat-card--blue .feat-card__icon-container { background: #eff6ff; color: #2563eb; }
+.feat-card--purple .feat-card__icon-container { background: #faf5ff; color: #a855f7; }
+.feat-card--orange .feat-card__icon-container { background: #fff7ed; color: #ea580c; }
+.feat-card--teal .feat-card__icon-container { background: #f0fdfa; color: #0d9488; }
+.feat-card--amber .feat-card__icon-container { background: #fefce8; color: #ca8a04; }
+.feat-card--indigo .feat-card__icon-container { background: #eef2ff; color: #4f46e5; }
+
+/* Hover animations */
+.feat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  transition: transform 0.35s var(--ease-spring), box-shadow 0.35s ease, border-color 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sweep glow on hover */
+.feat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(31,166,75,0.06) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.feat-card:hover::before { opacity: 1; }
+
+.feat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(31,166,75,0.12);
+  border-color: rgba(31,166,75,0.2);
+}
+
+.feat-card--green:hover .feat-card__icon-container  { background: #16a34a; color: #fff; transform: scale(1.1) rotate(-5deg); }
+.feat-card--blue:hover .feat-card__icon-container   { background: #2563eb; color: #fff; transform: scale(1.1) rotate(-5deg); }
+.feat-card--purple:hover .feat-card__icon-container { background: #a855f7; color: #fff; transform: scale(1.1) rotate(-5deg); }
+.feat-card--orange:hover .feat-card__icon-container { background: #ea580c; color: #fff; transform: scale(1.1) rotate(-5deg); }
+.feat-card--teal:hover .feat-card__icon-container   { background: #0d9488; color: #fff; transform: scale(1.1) rotate(-5deg); }
+.feat-card--amber:hover .feat-card__icon-container  { background: #ca8a04; color: #fff; transform: scale(1.1) rotate(-5deg); }
+.feat-card--indigo:hover .feat-card__icon-container { background: #4f46e5; color: #fff; transform: scale(1.1) rotate(-5deg); }
+
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .feat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .feat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .feat-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .feat-card {
+    padding: 28px 20px;
+  }
+}

@@ -1,101 +1,66 @@
-import React from 'react';
-import { Container, Typography, Grid, Card, CardContent, Button, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import Hero from '../components/home/Hero';
+import RoleCards from '../components/home/RoleCards';
+import WhyChooseUs from '../components/home/WhyChooseUs';
+import FeaturesGrid from '../components/home/FeaturesGrid';
+import HowItWorks from '../components/home/HowItWorks';
+import Statistics from '../components/home/Statistics';
+import Testimonials from '../components/home/Testimonials';
+import CTA from '../components/home/CTA';
+import Footer from '../components/home/Footer';
 
 const Home = () => {
+  // Premium IntersectionObserver scroll reveal
+  useEffect(() => {
+    // Legacy .reveal support
+    const legacyReveal = () => {
+      document.querySelectorAll('.reveal').forEach(el => {
+        const top = el.getBoundingClientRect().top;
+        if (top < window.innerHeight - 80) el.classList.add('visible');
+      });
+    };
+    window.addEventListener('scroll', legacyReveal, { passive: true });
+    legacyReveal();
+
+    // Modern data-reveal system
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const delay = el.dataset.revealDelay || '0ms';
+            setTimeout(() => {
+              el.classList.add('revealed');
+            }, parseInt(delay));
+            revealObserver.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
+    );
+
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      revealObserver.observe(el);
+    });
+
+    return () => {
+      window.removeEventListener('scroll', legacyReveal);
+      revealObserver.disconnect();
+    };
+  }, []);
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box textAlign="center" mb={6}>
-        <Typography variant="h2" component="h1" gutterBottom color="primary">
-          Welcome to AggroConnect
-        </Typography>
-        <Typography variant="h5" color="text.secondary" paragraph>
-          Connecting Farmers and Buyers for Better Agriculture
-        </Typography>
-      </Box>
-
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant="h5" component="h2" gutterBottom>
-                For Farmers
-              </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
-                List your products for bidding, manage your farm equipment, and access farming guidance.
-              </Typography>
-              <Button variant="contained" component={Link} to="/register" fullWidth>
-                Join as Farmer
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant="h5" component="h2" gutterBottom>
-                For Buyers
-              </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
-                Browse products, participate in bidding, and rent farming equipment.
-              </Typography>
-              <Button variant="contained" component={Link} to="/register" fullWidth>
-                Join as Buyer
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant="h5" component="h2" gutterBottom>
-                Features
-              </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
-                Bidding system, equipment rental, farming guidance, and more.
-              </Typography>
-              <Button variant="outlined" component={Link} to="/bidding" fullWidth>
-                Explore Features
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Box mt={6} textAlign="center">
-        <Typography variant="h4" gutterBottom>
-          Why Choose AggroConnect?
-        </Typography>
-        <Grid container spacing={3} mt={2}>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6">Fair Pricing</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Competitive bidding ensures fair prices for both farmers and buyers.
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6">Equipment Access</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Rent farming equipment easily when you need it.
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6">Expert Guidance</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Access farming guidance for better crop management.
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6">Community</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Join a community of farmers and agricultural professionals.
-            </Typography>
-          </Grid>
-        </Grid>
-      </Box>
-    </Container>
+    <div style={{ position: 'relative', overflow: 'hidden' }}>
+      <Hero />
+      <RoleCards />
+      <WhyChooseUs />
+      <FeaturesGrid />
+      <HowItWorks />
+      <Statistics />
+      <Testimonials />
+      <CTA />
+      <Footer />
+    </div>
   );
 };
 

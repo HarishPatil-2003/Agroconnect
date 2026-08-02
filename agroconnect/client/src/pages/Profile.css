@@ -1,0 +1,495 @@
+/* ================================================================
+   Profile.css — Premium AI-Powered Glassmorphism Profile Page
+   ================================================================ */
+
+/* ── Wrapper & Background ────────────────────────────────────── */
+.profile-page-wrapper {
+  position: relative;
+  min-height: calc(100vh - 74px);
+  padding: 40px 24px;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.profile-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.profile-bg__mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 15%, rgba(31,166,75,0.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 85%, rgba(37,99,235,0.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(6,182,212,0.03) 0%, transparent 60%);
+  background-size: 200% 200%;
+  animation: profile-aurora 15s ease-in-out infinite alternate;
+}
+
+@keyframes profile-aurora {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+.profile-bg__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+  will-change: transform;
+}
+.profile-bg__blob--1 {
+  width: 500px; height: 500px;
+  background: rgba(31,166,75,0.08);
+  top: -100px; left: -100px;
+  animation: profile-drift 25s ease-in-out infinite alternate;
+}
+.profile-bg__blob--2 {
+  width: 400px; height: 400px;
+  background: rgba(37,99,235,0.06);
+  bottom: -50px; right: -50px;
+  animation: profile-drift-rev 20s ease-in-out infinite alternate;
+}
+
+@keyframes profile-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(50px, 30px) scale(1.1); }
+  100% { transform: translate(-20px, 50px) scale(0.9); }
+}
+@keyframes profile-drift-rev {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-40px, -40px) scale(1.05); }
+  100% { transform: translate(30px, -60px) scale(0.95); }
+}
+
+/* ── Container (Main Glass Card) ──────────────────────────────── */
+.profile-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+  
+  /* Premium Glassmorphism & Pill Shape */
+  background: var(--color-surface);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 48px;
+  box-shadow: 
+    0 24px 64px rgba(15,23,42,0.08),
+    0 8px 24px rgba(15,23,42,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+  padding: 40px;
+  
+  /* Entrance Animation */
+  opacity: 0;
+  animation: profile-card-enter 0.8s cubic-bezier(0.16,1,0.3,1) 0.25s forwards;
+  will-change: transform, opacity;
+  transition: transform 0.1s ease-out; /* For mouse parallax */
+}
+
+body.dark .profile-container {
+  background: rgba(17, 24, 39, 0.65);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 
+    0 24px 64px rgba(0,0,0,0.4),
+    0 8px 24px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+@keyframes profile-card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+    filter: blur(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-right: 1px solid var(--color-border);
+  padding-right: 32px;
+  opacity: 0;
+  animation: profile-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 1.2s forwards;
+}
+
+/* ── Avatar Image ────────────────────────────────────────────── */
+.profile-avatar-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  margin-bottom: 24px;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  
+  /* Glowing ring & glass frame */
+  border: 4px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 
+    0 12px 32px rgba(31,166,75,0.25),
+    inset 0 0 0 2px rgba(255,255,255,0.5);
+  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.profile-avatar-container::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1FA64B, #06b6d4, #1FA64B);
+  z-index: -1;
+  animation: avatar-spin 4s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes avatar-spin {
+  100% { transform: rotate(360deg); }
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+.profile-avatar-container:hover {
+  transform: scale(1.05) translateY(-4px);
+  box-shadow: 0 16px 40px rgba(31,166,75,0.4);
+}
+.profile-avatar-container:hover .profile-avatar-img {
+  transform: scale(1.1);
+}
+
+.profile-avatar-upload {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+  border-radius: 50%;
+}
+.profile-avatar-container:hover .profile-avatar-upload {
+  opacity: 1;
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.profile-role-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: linear-gradient(135deg, #1FA64B 0%, #16a34a 100%);
+  padding: 6px 16px;
+  border-radius: 999px; /* Pill */
+  margin-bottom: 28px;
+  box-shadow: 0 4px 12px rgba(31,166,75,0.3);
+  animation: badge-float 3s ease-in-out infinite alternate;
+}
+
+@keyframes badge-float {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+/* ── Sidebar Navigation Tabs (Pills) ─────────────────────────── */
+.profile-nav-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.profile-nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px; /* Pill */
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-nav-tab:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.profile-nav-tab--active {
+  background: linear-gradient(135deg, rgba(31,166,75,0.1) 0%, rgba(31,166,75,0.05) 100%);
+  color: var(--color-primary-600) !important;
+  border-color: rgba(31,166,75,0.2);
+  box-shadow: 0 4px 16px rgba(31,166,75,0.1);
+}
+body.dark .profile-nav-tab--active {
+  background: linear-gradient(135deg, rgba(31,166,75,0.2) 0%, transparent 100%);
+}
+
+.profile-nav-tab--active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--color-primary-600);
+  border-radius: 999px;
+  box-shadow: 0 0 8px var(--color-primary-600);
+}
+
+/* ── Right Content Area ──────────────────────────────────────── */
+.profile-content {
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Cinematic Title (Word by Word) ──────────────────────────── */
+.profile-section-title-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 32px;
+}
+.profile-section-title-wrap span {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  display: inline-block;
+  opacity: 0;
+  animation: profile-word-reveal 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+/* Base delay for heading starts around 350ms, handled inline in JS per word */
+@keyframes profile-word-reveal {
+  0% { 
+    opacity: 0; 
+    transform: translate(-20px, 30px) scale(0.96); 
+    filter: blur(8px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translate(0, 0) scale(1); 
+    filter: blur(0); 
+  }
+}
+
+.profile-content-body {
+  opacity: 0;
+  animation: profile-fade-up 0.7s cubic-bezier(0.16,1,0.3,1) 1.0s forwards;
+}
+
+@keyframes profile-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Information Cards & Form Grid ───────────────────────────── */
+.profile-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+
+.profile-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile-form-group--full {
+  grid-column: span 2;
+}
+
+.profile-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  margin-left: 4px;
+}
+
+/* ── Pill Input Fields ───────────────────────────────────────── */
+.profile-input,
+.profile-select,
+.profile-textarea {
+  padding: 0 20px;
+  height: 48px;
+  border-radius: 999px; /* Pill */
+  border: 1.5px solid var(--color-border);
+  background: rgba(255,255,255,0.5); /* Glass */
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+body.dark .profile-input,
+body.dark .profile-select,
+body.dark .profile-textarea {
+  background: rgba(0,0,0,0.2);
+}
+
+.profile-textarea {
+  border-radius: 24px; /* Textareas can't really be pills, use heavy rounding */
+  padding: 16px 20px;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.profile-input:focus,
+.profile-select:focus,
+.profile-textarea:focus {
+  outline: none;
+  background: var(--color-surface);
+  border-color: var(--color-primary-600);
+  box-shadow: 
+    0 0 0 4px rgba(31, 166, 75, 0.15),
+    0 4px 12px rgba(31,166,75,0.08);
+}
+.profile-input:hover:not(:focus),
+.profile-textarea:hover:not(:focus) {
+  border-color: rgba(31,166,75,0.3);
+}
+
+/* View Mode Details Cards (Glass) */
+.profile-info-display {
+  padding: 14px 20px;
+  border-radius: 999px; /* Pill */
+  border: 1px solid var(--color-border);
+  background: linear-gradient(145deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 100%);
+  color: var(--color-text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.profile-info-display--textarea {
+  border-radius: 24px;
+}
+body.dark .profile-info-display {
+  background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+}
+.profile-info-display:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  border-color: rgba(31,166,75,0.2);
+}
+
+/* ── Buttons (Pill overrides just to be sure) ────────────────── */
+.profile-actions {
+  display: flex;
+  gap: 16px;
+  opacity: 0;
+  animation: profile-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) 1.4s forwards;
+}
+
+.profile-btn {
+  border-radius: 999px !important;
+  height: 48px;
+  padding: 0 32px;
+}
+
+/* ── Danger Zone Card ────────────────────────────────────────── */
+.settings-box {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: rgba(255,255,255,0.4);
+  padding: 32px;
+  border-radius: 36px;
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+}
+body.dark .settings-box {
+  background: rgba(0,0,0,0.2);
+  border-color: rgba(255,255,255,0.05);
+}
+
+.danger-zone {
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+  border-radius: 36px;
+  padding: 32px;
+  background: rgba(239, 68, 68, 0.03);
+  box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.05);
+}
+
+/* ── Responsiveness ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+    border-radius: 36px;
+    padding: 24px;
+  }
+  .profile-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding-right: 0;
+    padding-bottom: 32px;
+  }
+  .profile-content {
+    padding-left: 0;
+    padding-top: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-form-group--full {
+    grid-column: span 1;
+  }
+  .profile-actions {
+    flex-direction: column;
+  }
+}

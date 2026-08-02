@@ -1,5 +1,8 @@
 const express = require('express');
 const { auth, roleAuth } = require('../middleware/auth');
+const { validate, validateParams } = require('../middleware/validate');
+const { roleUpdateSchema, mongoIdSchema } = require('../utils/validators');
+const z = require('zod');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Bid = require('../models/Bid');
@@ -37,7 +40,7 @@ router.get('/dashboard', auth, roleAuth(['admin']), async (req, res) => {
 // Get all users
 router.get('/users', auth, roleAuth(['admin']), async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().select('-password -otp -otpExpiry -otpAttempts -otpResendCount -otpLastSentAt');
     res.json(users);
   } catch (err) {
     console.error(err.message);
@@ -46,7 +49,7 @@ router.get('/users', auth, roleAuth(['admin']), async (req, res) => {
 });
 
 // Update user role
-router.put('/users/:id/role', auth, roleAuth(['admin']), async (req, res) => {
+router.put('/users/:id/role', auth, roleAuth(['admin']), validateParams(z.object({ id: mongoIdSchema })), validate(roleUpdateSchema), async (req, res) => {
   const { role } = req.body;
 
   try {

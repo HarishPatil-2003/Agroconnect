@@ -1,0 +1,502 @@
+{
+  "settings": {
+    "title": "Account Settings",
+    "subtitle": "Manage your preferences and security",
+    "profile": {
+      "title": "Profile Details",
+      "subtitle": "Update your personal information",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "saveBtn": "Save Changes"
+    },
+    "preferences": {
+      "title": "App Preferences",
+      "subtitle": "Customize your experience",
+      "language": "Interface Language",
+      "darkMode": "Dark Mode",
+      "darkModeDesc": "Toggle dark theme across the application",
+      "notifications": "Push Notifications",
+      "notificationsDesc": "Receive updates and alerts",
+      "privacy": "Privacy Mode",
+      "privacyDesc": "Hide profile from public directory"
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Update your password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "updateBtn": "Update Password"
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "subtitle": "Irreversible account actions",
+      "logout": "Log Out Securely"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "marketplace": "Marketplace",
+    "equipment": "Equipment",
+    "guidance": "Guidance",
+    "about": "About",
+    "dashboard": "Dashboard",
+    "login": "Sign In",
+    "register": "Register",
+    "profile": "My Profile",
+    "settings": "Settings",
+    "logout": "Log Out"
+  },
+  "profileMenu": {
+    "myDashboard": "My Dashboard",
+    "myProfile": "My Profile",
+    "equipment": "Equipment",
+    "wishlist": "Wishlist",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "myListings": "My Listings",
+    "myBids": "My Bids",
+    "adminPanel": "Admin Panel",
+    "userManagement": "User Management",
+    "marketplaceManagement": "Marketplace Management",
+    "auctionManagement": "Auction Management",
+    "reportsAnalytics": "Reports & Analytics",
+    "logout": "Logout"
+  },
+  "notifications": {
+    "recentNotifications": "Recent Notifications",
+    "markAllRead": "Mark all read",
+    "clearAll": "Clear all",
+    "noNotifications": "You have no notifications yet",
+    "today": "Today",
+    "olderNotifications": "Older Notifications",
+    "deleteNotification": "Delete Notification"
+  },
+  "home": {
+    "featuresGrid": {
+      "label": "Features Suite",
+      "title": "Everything You Need to Scale Yield",
+      "subtitle": "A comprehensive agricultural management platform built for modern high-performance farmers.",
+      "items": [
+        {
+          "title": "Marketplace",
+          "description": "List your crops, set base prices, upload quality certificates, and let verified buyers bid for your harvest directly."
+        },
+        {
+          "title": "Equipment Rental",
+          "description": "Gain access to expensive modern implements on a short-term basis. Maximize yield without high capital investment."
+        },
+        {
+          "title": "Live Bidding",
+          "description": "Our robust real-time auctions generate the best prices. Integrated SMS notifications keep you connected instantly."
+        },
+        {
+          "title": "AI Guidance",
+          "description": "Leverage intelligence tools for soil evaluation, crop rotation advice, fertilizer metrics, and disease diagnosis."
+        },
+        {
+          "title": "Government Schemes",
+          "description": "Auto-match your crop, region, and profile with state and central subsidy benefits to secure eligible support."
+        },
+        {
+          "title": "Community Forums",
+          "description": "Exchange regional wisdom, discuss market sentiment, request help, and share success plans with peer agronomists."
+        },
+        {
+          "title": "Hyperlocal Weather",
+          "description": "Receive precision micro-forecasts, severe storm advisories, and immediate smart irrigation recommendations."
+        },
+        {
+          "title": "Yield Predictors",
+          "description": "Input soil conditions, seed type, and rainfall trends to estimate harvest size and build accurate sales projections."
+        }
+      ]
+    },
+    "hero": {
+      "badge": "Grow Together, Prosper Together",
+      "titlePrefix": [
+        "Welcome",
+        "to",
+        "the",
+        "future",
+        "of"
+      ],
+      "titleHighlight": "Agriculture",
+      "subtitle": "Connecting farmers directly with verified institutional buyers. Rent machinery, track auction bids, and get expert agronomy advisory on one secure platform.",
+      "features": [
+        {
+          "label": "Fair Prices",
+          "desc": "Direct bidding engine"
+        },
+        {
+          "label": "Equipment Sharing",
+          "desc": "Access underutilized fleet"
+        },
+        {
+          "label": "Verified Escrows",
+          "desc": "100% secure payouts"
+        }
+      ],
+      "joinAsFarmer": "Join as Farmer",
+      "browseMarketplace": "Browse Marketplace",
+      "socialProofPrefix": "active growers and agricultural buyers trust AgroConnect.",
+      "engineTitle": "AgroConnect Engine v2.4",
+      "liveMarketplace": "LIVE MARKETPLACE",
+      "activeAuctions": "Active Auctions",
+      "directBidding": "Direct Farmer Bidding System",
+      "location": "Verified Escrows • All India Logistics",
+      "connectedFarmers": "Connected Farmers",
+      "registeredBuyers": "Registered Buyers",
+      "livePricing": "Live Transparent Pricing",
+      "agronomyGuidance": "Agronomy Guidance",
+      "aiCropProtection": "AI Crop Protection",
+      "verifiedExpert": "Verified Expert Advice",
+      "equipmentFleet": "Equipment Fleet",
+      "listed": "Listed",
+      "availableForRent": "Available for Rent",
+      "verifiedPayouts": "Verified Escrow Payouts",
+      "directFarmToBuyer": "Direct Farm-to-Buyer"
+    },
+    "roleCards": {
+      "label": "PARTNER ROLES",
+      "title": "Choose How You Want to Grow",
+      "subtitle": "Tailored workflows designed for every participant in the agricultural supply chain.",
+      "items": [
+        {
+          "title": "Farmers & Growers",
+          "description": "List produce, run live auctions, rent machinery, and get AI agronomy assistance.",
+          "buttonText": "Join as Farmer"
+        },
+        {
+          "title": "Institutional Buyers",
+          "description": "Source verified quality crops directly from farm gate with transparent pricing.",
+          "buttonText": "Register as Buyer"
+        },
+        {
+          "title": "Equipment Owners",
+          "description": "Monetize underutilized machinery fleet through peer-to-peer verified rentals.",
+          "buttonText": "List Machinery"
+        }
+      ]
+    },
+    "howItWorks": {
+      "label": "STEP-BY-STEP PROCESS",
+      "title": "How AgroConnect Works",
+      "subtitle": "A simple four-step ecosystem designed for maximum efficiency and security.",
+      "stepPrefix": "STEP",
+      "items": [
+        {
+          "title": "Create Account",
+          "description": "Sign up as a farmer, buyer, or equipment provider in less than 2 minutes."
+        },
+        {
+          "title": "List & Connect",
+          "description": "Upload produce with quality specs or browse verified machinery available nearby."
+        },
+        {
+          "title": "Transparent Bidding",
+          "description": "Participate in real-time competitive auctions or direct instant purchases."
+        },
+        {
+          "title": "Escrow & Delivery",
+          "description": "Funds are secured in escrow until farm-gate inspection and doorstep fulfillment."
+        }
+      ]
+    },
+    "statistics": {
+      "farmersConnected": "Connected Farmers",
+      "registeredBuyers": "Registered Buyers",
+      "equipmentAvailable": "Machinery Fleet Listed",
+      "villagesReached": "Agricultural Districts Covered"
+    },
+    "whyChooseUs": {
+      "label": "WHY AGROCONNECT",
+      "title": "Built for Trust, Speed & Better Margins",
+      "description": "We remove unnecessary middlemen and deliver end-to-end transparency directly into rural hands.",
+      "metrics": [
+        { "num": "100%", "label": "Verified Escrow Payouts" },
+        { "num": "0%", "label": "Hidden Commission Fees" }
+      ],
+      "items": [
+        {
+          "title": "Direct Fair Pricing",
+          "description": "No middlemen margin cuts. Farmers retain full economic value for their harvest."
+        },
+        {
+          "title": "Escrow Protection",
+          "description": "100% guaranteed payment release upon quality verification and delivery."
+        },
+        {
+          "title": "On-Demand Machinery",
+          "description": "Access modern tractors, harvesters, and drones without capital expenditure."
+        },
+        {
+          "title": "24/7 AI Assistance",
+          "description": "Instant agronomy support, pest diagnosis, and government scheme guidance."
+        }
+      ]
+    },
+    "testimonials": {
+      "label": "COMMUNITY VOICES",
+      "title": "Trusted by Farmers Across the Nation",
+      "subtitle": "Read real experiences from agricultural producers and wholesale buyers.",
+      "items": [
+        {
+          "name": "Ramesh Patil",
+          "role": "Wheat & Soybean Farmer (Nashik)",
+          "comment": "AgroConnect doubled my net margin by eliminating middleman fees. I sold 50 quintals of wheat via live auction within 24 hours!",
+          "rating": 5
+        },
+        {
+          "name": "Sunita Sharma",
+          "role": "Organic Vegetable Grower (Punjab)",
+          "comment": "Renting a Mahindra tractor for 3 days saved me ₹40,000 compared to buying. The operator was punctual and professional.",
+          "rating": 5
+        },
+        {
+          "name": "Vikram Desai",
+          "role": "Wholesale Produce Buyer (Mumbai)",
+          "comment": "The quality verification and escrow system gives total peace of mind. Direct farm-gate sourcing has transformed our supply chain.",
+          "rating": 5
+        }
+      ]
+    },
+    "cta": {
+      "badge": "Start Growing Today",
+      "title": "Ready to Transform Your Agricultural Journey?",
+      "subtitle": "Join thousands of active growers and verified buyers using AgroConnect today.",
+      "registerFree": "Register for Free",
+      "exploreMarketplace": "Explore Marketplace"
+    },
+    "footer": {
+      "desc": "Empowering farmers with direct marketplace access, machinery sharing, and AI agronomy guidance.",
+      "platform": "Platform",
+      "marketplace": "Produce Marketplace",
+      "equipmentHire": "Equipment Rental",
+      "aiAdvisor": "AI Agronomy Advisor",
+      "joinPartner": "Join as Partner",
+      "resources": "Resources",
+      "cropRotation": "Crop Rotation Guide",
+      "soilTesting": "Soil Testing Metrics",
+      "mandiPrice": "Live Mandi Rates",
+      "govtSubsidies": "Government Subsidies",
+      "stayUpdated": "Stay Updated",
+      "newsDesc": "Subscribe to our newsletter for weekly market prices and advisories.",
+      "enterEmail": "Enter your email",
+      "subscribe": "Subscribe",
+      "rightsReserved": "AgroConnect. All rights reserved.",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service"
+    }
+  },
+  "marketplace": {
+    "search": {
+      "placeholder": "Search products, farmers or locations...",
+      "voiceSearchAlert": "Voice search is coming soon to AgroConnect!",
+      "sortPlaceholder": "Sort Listings",
+      "typePlaceholder": "Listing Type",
+      "filtersBtn": "Filters"
+    },
+    "sortOptions": {
+      "latest": "Latest Listings",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "popular": "Most Popular",
+      "nearest": "Nearest Location",
+      "rating": "Highest Rated",
+      "closing": "Closing Soon"
+    },
+    "typeOptions": {
+      "all": "All Listings",
+      "auction": "Live Auctions",
+      "buynow": "Buy Now Crops",
+      "organic": "Organic Produce",
+      "featured": "Featured Listings"
+    },
+    "filterSidebar": {
+      "title": "Advanced Filters",
+      "maxPriceLimit": "Max Price Limit",
+      "regionState": "Region (State)",
+      "statePlaceholder": "e.g. Punjab, Maharashtra",
+      "regionDistrict": "Region (District)",
+      "districtPlaceholder": "e.g. Amritsar, Nashik",
+      "productDetails": "Product Details",
+      "organicProduce": "Certified Organic Produce",
+      "verifiedProfile": "Verified Farmer Profile",
+      "reset": "Reset",
+      "apply": "Apply"
+    },
+    "productCard": {
+      "categories": {
+        "vegetables": "Vegetables",
+        "fruits": "Fresh Fruits",
+        "grains": "Organic Grains",
+        "dairy": "Pure Dairy",
+        "spices": "Exotic Spices",
+        "meat": "Fresh Meat"
+      },
+      "verified": "AgroConnect Verified",
+      "badges": {
+        "auction": "Auction",
+        "buyNow": "Buy Now",
+        "organic": "Organic",
+        "premium": "Premium"
+      },
+      "farmerFallback": "Verified Farmer",
+      "locationFallback": "Punjab, India",
+      "highestBid": "Highest Bid",
+      "price": "Price",
+      "ends": "Ends",
+      "instantBuy": "Instant Buy Available",
+      "viewDetails": "View Details",
+      "placeBid": "Place Bid"
+    },
+    "hero": {
+      "titlePart1": "AgroConnect",
+      "titlePart2": "Marketplace",
+      "titleFull": "AgroConnect Marketplace",
+      "subtitle": "Browse products directly from verified farmers across India. Purchase instantly or participate in live auctions."
+    },
+    "emptyState": {
+      "title": "No products available yet",
+      "desc": "There are currently no produce listings in the database matching your criteria.",
+      "createListing": "Create First Listing",
+      "resetFilters": "Reset Filters"
+    },
+    "checkout": {
+      "title": "Authorize Invoice Purchase",
+      "upiLabel": "UPI ID or Card Number",
+      "upiPlaceholder": "e.g. 9876543210@upi or card number",
+      "amountBilled": "Amount Billed:",
+      "confirmPayment": "Confirm Payment"
+    }
+  },
+  "equipment": {
+    "hero": {
+      "titlePart1": "Farm",
+      "titlePart2": "Equipment",
+      "titleFull": "Farm Equipment",
+      "subtitle": "Rent machinery directly from other farmers or verified providers in your area."
+    },
+    "stats": {
+      "activeMachinery": "Active Machinery",
+      "verifiedOwners": "Verified Owners"
+    },
+    "search": {
+      "placeholder": "Search tractors, harvesters..."
+    },
+    "filters": {
+      "button": "Filters",
+      "title": "Filter Options",
+      "maxDailyRate": "Max Daily Rate: ₹",
+      "operatorIncluded": "Operator Included Only",
+      "fuelIncluded": "Fuel Included Only",
+      "clearFilters": "Clear Filters",
+      "applyFilters": "Apply Filters"
+    },
+    "tabs": {
+      "browse": "Browse Fleet",
+      "myListings": "My Listed Machinery",
+      "myBookings": "My Bookings & History"
+    },
+    "browse": {
+      "emptyTitle": "No Machinery Available yet",
+      "emptyDesc": "There are currently no active machinery listings matching your criteria.",
+      "listFirst": "List First Machine",
+      "dailyRate": "Daily Rate",
+      "rentNow": "Rent Now"
+    },
+    "myListings": {
+      "title": "My Registered Machinery",
+      "addNew": "Add New Machine",
+      "requestsTitle": "Incoming Rental Requests",
+      "noRequests": "No rental requests received yet.",
+      "thMachinery": "Machinery",
+      "thRenter": "Renter Farmer",
+      "thDates": "Rental Dates",
+      "thAmount": "Total Amount",
+      "thStatus": "Status",
+      "thActions": "Actions",
+      "btnAccept": "Accept",
+      "btnReject": "Reject",
+      "btnComplete": "Mark Completed"
+    },
+    "myBookings": {
+      "title": "My Rental Booking History",
+      "noBookings": "You have not placed any machinery rental requests yet.",
+      "thOwner": "Owner",
+      "thBreakdown": "Cost Breakdown"
+    },
+    "bookModal": {
+      "title": "Book",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "reqOperator": "Request Professional Operator (+₹600/day)",
+      "reqFuel": "Include Diesel Fuel Supply (+₹800/day)",
+      "reqDelivery": "Request Farm-Gate Delivery (+₹500 + distance charge)",
+      "costBreakdown": "Itemized Cost Breakdown",
+      "baseRate": "Base Machinery Rate",
+      "operatorFee": "Operator Fee:",
+      "fuelFee": "Fuel Supply Fee:",
+      "deliveryFee": "Farm-Gate Delivery & Transit:",
+      "securityDeposit": "Refundable Security Deposit:",
+      "totalAmount": "Total Estimated Amount:",
+      "confirmBtn": "Confirm Rental Booking Request"
+    },
+    "addModal": {
+      "title": "List New Machinery for Rent",
+      "name": "Machinery Name",
+      "category": "Category",
+      "brand": "Brand & Model",
+      "brandPlaceholder": "e.g. Mahindra 605",
+      "dailyPrice": "Daily Price (₹)",
+      "securityDeposit": "Security Deposit (₹)",
+      "location": "Village & District",
+      "locationPlaceholder": "e.g. Pimpalgaon, Nashik",
+      "desc": "Description",
+      "publishBtn": "Publish Machinery Listing"
+    }
+  },
+  "guidance": {
+    "hero": {
+      "titlePart1": "Agricultural",
+      "titlePart2": "Guidance Hub",
+      "titleFull": "Agricultural Guidance Hub",
+      "subtitle": "Access real-time weather alerts, seasonal crop advisories, government scheme updates, and AI-powered farming assistance."
+    },
+    "ai": {
+      "askButton": "Ask AI Assistant",
+      "modalTitle": "Agri-AI Farming Assistant",
+      "modalDesc": "Ask me anything about soil health, pest control, crop selection, or modern farming techniques.",
+      "placeholder": "E.g. What is the best fertilizer for wheat in winter?"
+    },
+    "weather": {
+      "title": "Live Agri-Telemetry & Weather",
+      "status": "Status: Live",
+      "temp": "Temperature",
+      "humidity": "Humidity",
+      "moisture": "Soil Moisture",
+      "ph": "Soil pH",
+      "advisoryTitle": "Live Advisory"
+    },
+    "articles": {
+      "title": "Knowledge Base & Articles",
+      "searchPlaceholder": "Search articles...",
+      "readMore": "Read Article",
+      "emptyTitle": "No Articles Found"
+    },
+    "tabs": {
+      "articles": "Articles",
+      "videos": "Videos",
+      "schemes": "Gov Schemes",
+      "faqs": "FAQs"
+    },
+    "modal": {
+      "readTime": "read",
+      "comments": "Comments",
+      "leaveComment": "Leave a comment...",
+      "postBtn": "Post",
+      "loginToComment": "Please login to join the discussion"
+    }
+  }
+}

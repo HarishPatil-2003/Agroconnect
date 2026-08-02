@@ -1,0 +1,171 @@
+/* ================================================================
+   AgroConnect — Shared Layouts CSS
+   MainLayout, DashboardLayout, AuthLayout
+   ================================================================ */
+
+/* ── Main Layout ─────────────────────────────────────────────── */
+:root {
+  --header-height: 80px;
+}
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height, 80px);
+  z-index: 1000;
+  background: var(--nav-bg, rgba(255, 255, 255, 0.95));
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--nav-border, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+body.dark .app-header {
+  background: var(--nav-bg, rgba(11, 15, 25, 0.95));
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.app-content {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  padding-top: var(--header-height, var(--navbar-h, 80px));
+}
+
+.app-content--auth {
+  padding-top: 0;
+}
+
+.main-layout {
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-layout__content {
+  flex: 1;
+  width: 100%;
+  padding-top: var(--header-height, var(--navbar-h, 80px));
+}
+
+/* ── Auth Layout ─────────────────────────────────────────────── */
+/* Styles moved to layouts/AuthLayout.css */
+
+/* ── Dashboard Layout ────────────────────────────────────────── */
+.dashboard-layout {
+  min-height: calc(100vh - var(--navbar-h));
+  background: var(--color-bg);
+}
+
+.dashboard-layout__header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-6) var(--space-8);
+}
+
+.dashboard-layout__header-inner {
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.dashboard-layout__title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.dashboard-layout__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+.dashboard-layout__content {
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+  padding: var(--space-8);
+}
+
+.dashboard-layout__tabs {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--space-8);
+}
+
+.dashboard-layout__tabs-inner {
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+}
+
+/* ── Dashboard Stats Grid ────────────────────────────────────── */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
+}
+
+/* ── Dashboard Cards Grid ────────────────────────────────────── */
+.dashboard-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-5);
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout__header { padding: var(--space-5) var(--space-4); }
+  .dashboard-layout__content { padding: var(--space-5) var(--space-4); }
+  .dashboard-layout__tabs { padding: 0 var(--space-4); }
+  .dashboard-stats-grid { grid-template-columns: 1fr 1fr; }
+  .dashboard-cards-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .dashboard-stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Empty State ─────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-8);
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.empty-state__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 32px;
+}
+
+.empty-state__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+}
+
+.empty-state__desc {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  max-width: 360px;
+}

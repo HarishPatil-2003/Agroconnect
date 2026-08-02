@@ -1,5 +1,7 @@
 const express = require('express');
 const { auth } = require('../middleware/auth');
+const { validate } = require('../middleware/validate');
+const { placeBidSchema } = require('../utils/validators');
 const Product = require('../models/Product');
 const Bid = require('../models/Bid');
 
@@ -27,22 +29,32 @@ router.get('/products', auth, async (req, res) => {
       }).populate('farmer', 'name');
     }
 
-    // Attach bid stats
-    const enrichedProducts = await Promise.all(
-      products.map(async (product) => {
-        const bids = await Bid.find({ product: product._id });
+    // Attach bid stats via single batched aggregation query
+    const productIds = products.map(p => p._id);
+    const bidStats = await Bid.aggregate([
+      { $match: { product: { $in: productIds } } },
+      {
+        $group: {
+          _id: '$product',
+          totalBids: { $sum: 1 },
+          highestBid: { $max: '$amount' }
+        }
+      }
+    ]);
 
-        const highestBid = bids.length
-          ? Math.max(...bids.map(b => b.amount))
-          : product.basePrice;
+    const statsMap = new Map();
+    bidStats.forEach(stat => {
+      statsMap.set(stat._id.toString(), stat);
+    });
 
-        return {
-          ...product.toObject(),
-          totalBids: bids.length,
-          highestBid
-        };
-      })
-    );
+    const enrichedProducts = products.map(product => {
+      const stat = statsMap.get(product._id.toString());
+      return {
+        ...product.toObject(),
+        totalBids: stat ? stat.totalBids : 0,
+        highestBid: stat ? stat.highestBid : product.basePrice
+      };
+    });
 
     res.json(enrichedProducts);
   } catch (err) {
@@ -54,7 +66,7 @@ router.get('/products', auth, async (req, res) => {
 /**
  * PLACE BID (BUYER ONLY)
  */
-router.post('/products/:id/bid', auth, async (req, res) => {
+router.post('/products/:id/bid', auth, validate(placeBidSchema), async (req, res) => {
   if (req.user.role !== 'buyer') {
     return res.status(403).json({ message: 'Only buyers can place bids' });
   }
@@ -66,6 +78,11 @@ router.post('/products/:id/bid', auth, async (req, res) => {
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
+    }
+
+    if (product.farmer.toString() === req.user.id) {
+      console.warn(`🔒 [UNAUTHORIZED SELF BID ATTEMPT] Farmer ${req.user.id} tried to bid on their own product ${product._id}`);
+      return res.status(403).json({ message: 'Forbidden: You cannot bid on your own product' });
     }
 
     if (product.biddingEndTime < new Date()) {

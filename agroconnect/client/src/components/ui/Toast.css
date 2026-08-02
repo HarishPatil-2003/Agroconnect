@@ -1,0 +1,76 @@
+/* ================================================================
+   UI Component — Toast.css
+   ================================================================ */
+.ds-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  pointer-events: none;
+}
+
+.ds-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 14px var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xl);
+  min-width: 300px;
+  max-width: 420px;
+  pointer-events: all;
+  animation: ds-slide-right 300ms var(--ease-spring) both;
+  backdrop-filter: blur(16px);
+}
+
+.ds-toast--success { border-left: 4px solid var(--color-success); }
+.ds-toast--error   { border-left: 4px solid var(--color-danger); }
+.ds-toast--warning { border-left: 4px solid var(--color-warning); }
+.ds-toast--info    { border-left: 4px solid var(--color-info); }
+
+.ds-toast__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.ds-toast--success .ds-toast__icon { color: var(--color-success); }
+.ds-toast--error   .ds-toast__icon { color: var(--color-danger); }
+.ds-toast--warning .ds-toast__icon { color: var(--color-warning); }
+.ds-toast--info    .ds-toast__icon { color: var(--color-info); }
+
+.ds-toast__message {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.ds-toast__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  transition: color var(--duration-fast) var(--ease-smooth);
+  flex-shrink: 0;
+}
+.ds-toast__close:hover { color: var(--color-text-primary); }
+
+@media (max-width: 480px) {
+  .ds-toast-container {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+  .ds-toast { min-width: unset; max-width: 100%; }
+}
