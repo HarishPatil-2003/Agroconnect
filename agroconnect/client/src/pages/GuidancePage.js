@@ -343,22 +343,35 @@ const GuidancePage = () => {
     return articles.filter(a => a.isFeatured);
   }, [articles]);
 
-  // Toggle Bookmark
+  // Toggle Bookmark (Optimistic Update)
   const handleToggleBookmark = async (articleId, e) => {
     if (e) e.stopPropagation();
     if (!isAuthenticated) {
       alert('Please log in to bookmark articles.');
       return;
     }
+
+    const previousBookmarks = [...bookmarks];
+    const isBookmarked = bookmarks.includes(articleId);
+
+    // Optimistically update the bookmarks state
+    setBookmarks(prev => 
+      isBookmarked ? prev.filter(id => id !== articleId) : [...prev, articleId]
+    );
+
     try {
       const res = await api.post('/guidance/bookmarks', { articleId });
-      if (res.data.bookmarked) {
-        setBookmarks(prev => [...prev, articleId]);
-      } else {
-        setBookmarks(prev => prev.filter(id => id !== articleId));
-      }
+      // Reconcile state based on server response just in case
+      const isActuallyBookmarked = res.data.bookmarked;
+      setBookmarks(prev => {
+        const list = prev.filter(id => id !== articleId);
+        return isActuallyBookmarked ? [...list, articleId] : list;
+      });
     } catch (err) {
-      console.error('Failed to update bookmark:', err);
+      console.error('⚠️ [OPTIMISTIC ROLLBACK] Failed to update bookmark, reverting:', err);
+      alert('Failed to update bookmark due to network failure. Reverting state.');
+      // Rollback to previous state
+      setBookmarks(previousBookmarks);
     }
   };
 
@@ -373,7 +386,7 @@ const GuidancePage = () => {
     }
   };
 
-  // Submit Comment
+  // Submit Comment (Optimistic Update)
   const handlePostCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -381,15 +394,39 @@ const GuidancePage = () => {
       alert('Please log in to post comments.');
       return;
     }
+
+    const originalCommentText = newComment;
+    const tempId = 'temp-' + Date.now();
+    const tempComment = {
+      _id: tempId,
+      article: selectedArticle._id,
+      user: user?.id || 'guest',
+      userName: user?.name || 'Farmer Member',
+      userRole: user?.role || 'farmer',
+      text: originalCommentText,
+      createdAt: new Date().toISOString(),
+      isOptimistic: true
+    };
+
+    const previousComments = [...comments];
+
+    // Optimistically add the comment immediately and clear the input
+    setComments(prev => [tempComment, ...prev]);
+    setNewComment('');
+
     try {
       const res = await api.post('/guidance/comments', {
         articleId: selectedArticle._id,
-        text: newComment
+        text: originalCommentText
       });
-      setComments(prev => [res.data, ...prev]);
-      setNewComment('');
+      // Reconcile: Replace the optimistic temporary comment with the server-saved comment
+      setComments(prev => prev.map(c => c._id === tempId ? res.data : c));
     } catch (err) {
-      console.error('Error posting comment:', err);
+      console.error('⚠️ [OPTIMISTIC ROLLBACK] Failed to post comment, reverting:', err);
+      alert('Failed to submit comment due to a server error. Your text has been restored.');
+      // Rollback: Remove the optimistic comment and restore user input text
+      setComments(previousComments);
+      setNewComment(originalCommentText);
     }
   };
 
@@ -818,10 +855,25 @@ const GuidancePage = () => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {comments.map(c => (
-                    <div key={c._id} style={{ padding: '12px', background: 'var(--color-surface-2)', borderRadius: 'var(--radius-md)' }}>
+                    <div 
+                      key={c._id} 
+                      style={{ 
+                        padding: '12px', 
+                        background: 'var(--color-surface-2)', 
+                        borderRadius: 'var(--radius-md)',
+                        opacity: c.isOptimistic ? 0.6 : 1,
+                        transition: 'opacity 0.25s ease'
+                      }}
+                    >
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                         <strong style={{ fontSize: 'var(--text-sm)' }}>{c.userName} ({c.userRole})</strong>
-                        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{new Date(c.createdAt).toLocaleDateString()}</span>
+                        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {c.isOptimistic ? (
+                            <span style={{ color: 'var(--color-primary-600)', fontWeight: 600 }}>Sending...</span>
+                          ) : (
+                            new Date(c.createdAt).toLocaleDateString()
+                          )}
+                        </span>
                       </div>
                       <p style={{ margin: 0, fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>{c.text}</p>
                     </div>
