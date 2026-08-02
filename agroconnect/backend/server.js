@@ -22,7 +22,22 @@ app.use(compression({
 }));
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -39,6 +54,12 @@ if (!process.env.JWT_SECRET) {
   console.error('❌ CRITICAL ERROR: JWT_SECRET is missing in .env!');
 } else {
   console.log('✅ JWT_SECRET verified');
+}
+
+if (!process.env.REFRESH_SECRET) {
+  console.error('❌ CRITICAL ERROR: REFRESH_SECRET is missing in .env!');
+} else {
+  console.log('✅ REFRESH_SECRET verified');
 }
 
 // PHASE 3: SMTP NODEMAILER AUDIT

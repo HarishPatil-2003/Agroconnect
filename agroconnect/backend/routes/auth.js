@@ -170,7 +170,7 @@ router.post('/verify-otp', authLimiter, validate(verifyOtpSchema), async (req, r
     console.log(`🔑 [JWT ISSUED] Access token generated for User ID: ${user.id}`);
 
     // Set Refresh Token in HttpOnly Cookie
-    const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET || 'strong_refresh_secret_at_least_32_chars_long_!', { expiresIn: '7d' });
+    const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -330,7 +330,7 @@ router.post(
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '60m' });
       
       // Set Refresh Token in HttpOnly Cookie
-      const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET || 'strong_refresh_secret_at_least_32_chars_long_!', { expiresIn: '7d' });
+      const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -496,7 +496,7 @@ router.post('/refresh', async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET || 'strong_refresh_secret_at_least_32_chars_long_!');
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
     const user = await User.findById(decoded.id);
     if (!user) {
       return res.status(401).json({ message: 'User account not found.' });
