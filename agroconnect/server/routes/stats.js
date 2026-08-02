@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const { cacheMiddleware } = require('../middleware/cache');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Equipment = require('../models/Equipment');
 const Profile = require('../models/Profile');
 const Bid = require('../models/Bid');
 
-// GET /api/stats - Public endpoint for live platform statistics
-router.get('/', async (req, res) => {
+// GET /api/stats - Public endpoint for live platform statistics (cached for 60s)
+router.get('/', cacheMiddleware(60), async (req, res) => {
   try {
     const farmersConnected = await User.countDocuments({ role: 'farmer' });
     const registeredBuyers  = await User.countDocuments({ role: 'buyer' });
@@ -42,8 +43,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/stats/featured - Public endpoint for live dynamic Home page sections
-router.get('/featured', async (req, res) => {
+// GET /api/stats/featured - Public endpoint for live dynamic Home page sections (cached for 60s)
+router.get('/featured', cacheMiddleware(60), async (req, res) => {
   try {
     const highestAuction = await Product.findOne({
       biddingEndTime: { $gt: new Date() },

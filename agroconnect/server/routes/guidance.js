@@ -4,6 +4,7 @@ const { auth } = require('../middleware/auth');
 const { aiLimiter } = require('../middleware/rateLimiter');
 const { validate } = require('../middleware/validate');
 const { bookmarkSchema, commentSchema, askAiSchema } = require('../utils/validators');
+const { cacheMiddleware } = require('../middleware/cache');
 const GuidanceArticle = require('../models/GuidanceArticle');
 const GuidanceVideo   = require('../models/GuidanceVideo');
 const GuidanceFAQ     = require('../models/GuidanceFAQ');
@@ -201,9 +202,9 @@ const seedGuidanceDB = async () => {
 seedGuidanceDB();
 
 /* =========================================
-   GET /api/guidance/articles (Filter & Search)
+   GET /api/guidance/articles (Filter & Search) (cached for 300s)
    ========================================= */
-router.get('/articles', async (req, res) => {
+router.get('/articles', cacheMiddleware(300), async (req, res) => {
   try {
     const { category, search, season, sort } = req.query;
     let filter = {};
@@ -244,9 +245,9 @@ router.get('/articles', async (req, res) => {
 });
 
 /* =========================================
-   GET /api/guidance/featured
+   GET /api/guidance/featured (cached for 300s)
    ========================================= */
-router.get('/featured', async (req, res) => {
+router.get('/featured', cacheMiddleware(300), async (req, res) => {
   try {
     const featured = await GuidanceArticle.find({ isFeatured: true }).limit(5);
     res.json(featured);
@@ -256,9 +257,9 @@ router.get('/featured', async (req, res) => {
 });
 
 /* =========================================
-   GET /api/guidance/categories (Dynamic categories)
+   GET /api/guidance/categories (Dynamic categories) (cached for 300s)
    ========================================= */
-router.get('/categories', async (req, res) => {
+router.get('/categories', cacheMiddleware(300), async (req, res) => {
   try {
     const categoriesInUse = await GuidanceArticle.distinct('category');
     res.json(['All', ...categoriesInUse]);
@@ -268,9 +269,9 @@ router.get('/categories', async (req, res) => {
 });
 
 /* =========================================
-   GET /api/guidance/seasonal (Calculated Season Advisory)
+   GET /api/guidance/seasonal (Calculated Season Advisory) (cached for 300s)
    ========================================= */
-router.get('/seasonal', async (req, res) => {
+router.get('/seasonal', cacheMiddleware(300), async (req, res) => {
   try {
     const month = new Date().getMonth() + 1;
     let season = 'Kharif';
@@ -306,9 +307,9 @@ router.get('/seasonal', async (req, res) => {
 });
 
 /* =========================================
-   GET /api/guidance/weather (Live Telemetry)
+   GET /api/guidance/weather (Live Telemetry) (cached for 60s)
    ========================================= */
-router.get('/weather', async (req, res) => {
+router.get('/weather', cacheMiddleware(60), async (req, res) => {
   try {
     res.json({
       location: 'Nashik & Western Maharashtra',
@@ -329,9 +330,9 @@ router.get('/weather', async (req, res) => {
 });
 
 /* =========================================
-   GET /api/guidance/videos
+   GET /api/guidance/videos (cached for 300s)
    ========================================= */
-router.get('/videos', async (req, res) => {
+router.get('/videos', cacheMiddleware(300), async (req, res) => {
   try {
     const videos = await GuidanceVideo.find().sort({ views: -1 });
     res.json(videos);
@@ -341,9 +342,9 @@ router.get('/videos', async (req, res) => {
 });
 
 /* =========================================
-   GET /api/guidance/faqs
+   GET /api/guidance/faqs (cached for 300s)
    ========================================= */
-router.get('/faqs', async (req, res) => {
+router.get('/faqs', cacheMiddleware(300), async (req, res) => {
   try {
     const faqs = await GuidanceFAQ.find().sort({ order: 1 });
     res.json(faqs);
