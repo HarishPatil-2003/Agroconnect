@@ -1,5 +1,5 @@
 {
-  "name": "agroconnect-client",
+  "name": "agroconnect-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

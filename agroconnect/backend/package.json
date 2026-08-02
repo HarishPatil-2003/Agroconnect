@@ -1,5 +1,5 @@
 {
-  "name": "agroconnect-server",
+  "name": "agroconnect-backend",
   "version": "1.0.0",
   "description": "Backend server for AggroConnect application",
   "main": "server.js",
