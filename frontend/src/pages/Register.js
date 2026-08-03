@@ -186,15 +186,12 @@ const Register = ({ mode, setMode }) => {
 
   return (
     <>
-      {/* ── Top Navigation / Dark Mode Toggle ── */}
-      <div style={{ position: 'absolute', top: 24, right: 24, zIndex: 50 }}>
-        <DarkModeToggle mode={mode} setMode={setMode} />
-      </div>
-
       <AuthLayout
         title="Create Your Account"
         subtitle="Join AgroConnect — India's premier AgriTech ecosystem"
         cardClassName="auth-card--register"
+        mode={mode}
+        setMode={setMode}
       >
       {/* ── Error Banner ── */}
       {error && (

@@ -33,11 +33,14 @@ const base64FileSchema = (maxSizeMb = 5, allowedMimes = ['image/jpeg', 'image/pn
 
 // Common Validators
 const mongoIdSchema = z.string().regex(mongoIdRegex, 'Invalid unique ID format.');
+const emailSchema = z.string()
+  .regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.')
+  .transform(val => val.trim().toLowerCase());
 
 // Authentication Schemas
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.').max(60, 'Name must be under 60 characters.'),
-  email: z.string().regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.'),
+  email: emailSchema,
   phone: z.string().refine(val => indianPhoneRegex.test(val.replace(/[^0-9]/g, '')), {
     message: 'Phone number must be a valid 10-digit Indian mobile number.'
   }),
@@ -51,25 +54,25 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.'),
+  email: emailSchema,
   password: z.string().min(1, 'Password is required.')
 });
 
 const verifyOtpSchema = z.object({
-  email: z.string().regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.'),
+  email: emailSchema,
   otp: z.string().length(6, 'OTP must be exactly 6 digits.').regex(/^\d+$/, 'OTP must contain only digits.')
 });
 
 const resendOtpSchema = z.object({
-  email: z.string().regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.')
+  email: emailSchema
 });
 
 const forgotPasswordSchema = z.object({
-  email: z.string().regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.')
+  email: emailSchema
 });
 
 const resetPasswordSchema = z.object({
-  email: z.string().regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.'),
+  email: emailSchema,
   otp: z.string().length(6, 'OTP must be exactly 6 digits.').regex(/^\d+$/, 'OTP must contain only digits.'),
   newPassword: z.string().regex(passwordRegex, {
     message: 'New password must be 8-64 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.'
@@ -87,7 +90,7 @@ const profileUpdateSchema = z.object({
 // Profile Creation & Update (Full Profiles schema)
 const profileCreateSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters.').max(60, 'Full name must be under 60 characters.'),
-  email: z.string().regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.'),
+  email: emailSchema,
   phone: z.string().refine(val => indianPhoneRegex.test(val.replace(/[^0-9]/g, '')), {
     message: 'Phone number must be a valid 10-digit Indian mobile number.'
   }).optional(),

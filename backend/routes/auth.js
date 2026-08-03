@@ -49,10 +49,13 @@ router.post(
     const cleanPhone = phone.replace(/[^0-9]/g, '');
 
     try {
+      // Double-ensure email normalization
+      const normalizedEmail = email.trim().toLowerCase();
+
       // Check Duplicate Email
-      const existingEmail = await User.findOne({ email });
+      const existingEmail = await User.findOne({ email: normalizedEmail });
       if (existingEmail) {
-        console.warn(`❌ [DUPLICATE] Email already registered: ${email}`);
+        console.warn(`❌ [DUPLICATE] Email already registered: ${normalizedEmail}`);
         return res.status(400).json({ message: 'Email address is already registered.' });
       }
 
@@ -69,11 +72,11 @@ router.post(
       // Generate 6-Digit Verification OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-      console.log(`🔐 [OTP GEN] Generated 6-Digit OTP: ${otp} for ${email} (Expires: 15 mins)`);
+      console.log(`🔐 [OTP GEN] Generated 6-Digit OTP: ${otp} for ${normalizedEmail} (Expires: 15 mins)`);
 
       const user = new User({
         name,
-        email,
+        email: normalizedEmail,
         phone: cleanPhone,
         password: hashedPassword,
         role: role || 'farmer',
@@ -90,7 +93,7 @@ router.post(
       console.log(`💾 [MONGO WRITE SUCCESS] User registered with isVerified = false (ID: ${user._id})`);
 
       // Send OTP Email via Nodemailer
-      const sendResult = await sendOtpEmail(email, otp, name, 'registration');
+      const sendResult = await sendOtpEmail(normalizedEmail, otp, name, 'registration');
       console.log(`✉️ [SMTP SEND] Method: ${sendResult.method}`);
 
       res.status(201).json({
@@ -100,7 +103,7 @@ router.post(
         devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
       });
     } catch (err) {
-      console.error(`💥 [REGISTRATION ERROR]`, err);
+      console.error(`💥 [REGISTRATION ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Body:`, { ...req.body, password: req.body.password ? '***' : undefined }, `\nStack Trace:`, err.stack);
       res.status(500).json({ message: `Database write or server error: ${err.message}` });
     }
   }
@@ -169,12 +172,12 @@ router.post('/verify-otp', authLimiter, validate(verifyOtpSchema), async (req, r
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '60m' });
     console.log(`🔑 [JWT ISSUED] Access token generated for User ID: ${user.id}`);
 
-    // Set Refresh Token in HttpOnly Cookie
+    // Set Refresh Token in HttpOnly Cookie (SameSite=None for cross-site Render-Vercel)
     const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
@@ -193,7 +196,7 @@ router.post('/verify-otp', authLimiter, validate(verifyOtpSchema), async (req, r
       }
     });
   } catch (err) {
-    console.error(`💥 [VERIFICATION ERROR]`, err);
+    console.error(`💥 [VERIFICATION ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Body:`, req.body, `\nStack Trace:`, err.stack);
     res.status(500).json({ message: 'Server error during OTP verification.' });
   }
 });
@@ -249,7 +252,7 @@ router.post('/resend-otp', authLimiter, validate(resendOtpSchema), async (req, r
       devOtp: process.env.NODE_ENV !== 'production' ? newOtp : undefined
     });
   } catch (err) {
-    console.error(`💥 [RESEND OTP ERROR]`, err);
+    console.error(`💥 [RESEND OTP ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Body:`, req.body, `\nStack Trace:`, err.stack);
     res.status(500).json({ message: 'Failed to resend verification OTP code.' });
   }
 });
@@ -329,12 +332,12 @@ router.post(
 
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '60m' });
       
-      // Set Refresh Token in HttpOnly Cookie
+      // Set Refresh Token in HttpOnly Cookie (SameSite=None for cross-site Render-Vercel)
       const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
@@ -354,7 +357,7 @@ router.post(
         }
       });
     } catch (err) {
-      console.error(`💥 [LOGIN ERROR]`, err);
+      console.error(`💥 [LOGIN ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Body:`, { ...req.body, password: req.body.password ? '***' : undefined }, `\nStack Trace:`, err.stack);
       res.status(500).json({ message: 'Server error during sign in.' });
     }
   }
@@ -391,7 +394,7 @@ router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), asy
       devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
     });
   } catch (err) {
-    console.error(`💥 [FORGOT PW ERROR]`, err);
+    console.error(`💥 [FORGOT PW ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Body:`, req.body, `\nStack Trace:`, err.stack);
     res.status(500).json({ message: 'Failed to process forgot password request.' });
   }
 });
@@ -434,7 +437,7 @@ router.post('/reset-password', authLimiter, validate(resetPasswordSchema), async
     console.log(`✅ [PASSWORD RESET SUCCESS] Updated password for ${email}`);
     res.json({ message: 'Password updated successfully! You can now sign in with your new password.' });
   } catch (err) {
-    console.error(`💥 [RESET PW ERROR]`, err);
+    console.error(`💥 [RESET PW ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Body:`, { ...req.body, newPassword: req.body.newPassword ? '***' : undefined }, `\nStack Trace:`, err.stack);
     res.status(500).json({ message: 'Failed to reset password.' });
   }
 });
@@ -530,8 +533,8 @@ router.post('/refresh', async (req, res) => {
 router.post('/logout', async (req, res) => {
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    secure: true,
+    sameSite: 'none'
   });
   res.json({ message: 'Successfully signed out!' });
 });

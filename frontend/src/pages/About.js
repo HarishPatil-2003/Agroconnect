@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/auth';
 import { 
   Target, 
   Award, 
@@ -32,7 +32,7 @@ const About = () => {
   const [hasRevealed, setHasRevealed] = useState(false);
 
   useEffect(() => {
-    axios.get('/api/stats')
+    api.get('/stats')
       .then(res => {
         const d = res.data;
         setStats([

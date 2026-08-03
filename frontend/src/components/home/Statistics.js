@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import api from '../../utils/auth';
 import { useLanguage } from '../../contexts/LanguageContext';
 import './Statistics.css';
 
@@ -17,7 +17,7 @@ const Statistics = () => {
   ]);
 
   useEffect(() => {
-    axios.get('/api/stats')
+    api.get('/stats')
       .then(res => {
         const d = res.data;
         setLiveStats([

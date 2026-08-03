@@ -12,6 +12,9 @@ dotenv.config();
 
 const app = express();
 
+// Trust reverse proxy (Render, Vercel, etc.) to get correct client IP for rate limiting
+app.set('trust proxy', 1);
+
 // Gzip/Brotli HTTP response compression middleware for JSON and text payloads (>1KB threshold)
 app.use(compression({
   threshold: 1024, // 1 KB threshold
@@ -25,18 +28,28 @@ app.use(compression({
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : null
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    const cleanOrigin = origin.replace(/\/$/, '');
+    const isAllowed = allowedOrigins.some(allowed => allowed.replace(/\/$/, '') === cleanOrigin)
+      || cleanOrigin.endsWith('.vercel.app');
+    
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.warn(`❌ [CORS BLOCKED] Origin: ${origin} not in allowed origins list:`, allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));

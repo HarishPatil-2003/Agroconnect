@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Leaf } from 'lucide-react';
+import DarkModeToggle from '../components/ui/DarkModeToggle';
 import './AuthLayout.css';
 
 /* ── Particle config ──────────────────────────────────── */
@@ -18,7 +19,7 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
 /**
  * AuthLayout — Premium animated glass card layout for Login/Register
  */
-const AuthLayout = ({ title, subtitle, children, cardClassName = '' }) => {
+const AuthLayout = ({ title, subtitle, children, cardClassName = '', mode, setMode }) => {
   const layoutRef = useRef(null);
   const cardRef   = useRef(null);
   const glowRef   = useRef(null);
@@ -113,6 +114,13 @@ const AuthLayout = ({ title, subtitle, children, cardClassName = '' }) => {
       >
         {/* Inner glass highlight edge */}
         <div className="auth-card__highlight" aria-hidden="true" />
+
+        {/* Dark Mode Toggle pinned to the authentication container */}
+        {mode && setMode && (
+          <div className="auth-card__theme-toggle">
+            <DarkModeToggle mode={mode} setMode={setMode} />
+          </div>
+        )}
 
         {/* ── Card Header ── */}
         <div className="auth-card__header">

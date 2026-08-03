@@ -121,15 +121,12 @@ const Login = ({ mode, setMode }) => {
 
   return (
     <>
-      {/* ── Top Navigation / Dark Mode Toggle ── */}
-      <div style={{ position: 'absolute', top: 24, right: 24, zIndex: 50 }}>
-        <DarkModeToggle mode={mode} setMode={setMode} />
-      </div>
-
       <AuthLayout
         title="Welcome Back"
         subtitle="Sign in to your AgroConnect account"
         cardClassName="auth-card--login"
+        mode={mode}
+        setMode={setMode}
       >
       {/* ── Success Banner ── */}
       {successMsg && (

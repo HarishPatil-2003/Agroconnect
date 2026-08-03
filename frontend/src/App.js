@@ -103,8 +103,8 @@ function App() {
           <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path="/login" element={<PublicRoute><Login mode={mode} setMode={setMode} /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register mode={mode} setMode={setMode} /></PublicRoute>} />
-          <Route path="/verify-otp" element={<PublicRoute><VerifyOtpPage /></PublicRoute>} />
-          <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
+          <Route path="/verify-otp" element={<PublicRoute><VerifyOtpPage mode={mode} setMode={setMode} /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage mode={mode} setMode={setMode} /></PublicRoute>} />
           <Route path="/bidding" element={<PrivateRoute><BiddingPage /></PrivateRoute>} />
           <Route path="/equipment" element={<PrivateRoute><EquipmentPage /></PrivateRoute>} />
           <Route path="/guidance" element={<PrivateRoute><GuidancePage /></PrivateRoute>} />

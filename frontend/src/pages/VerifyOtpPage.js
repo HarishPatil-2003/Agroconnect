@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import AuthLayout from '../layouts/AuthLayout';
 import Button from '../components/ui/Button';
 
-const VerifyOtpPage = () => {
+const VerifyOtpPage = ({ mode, setMode }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -133,6 +133,8 @@ const VerifyOtpPage = () => {
     <AuthLayout
       title="Verify Your Email"
       subtitle={`Enter the 6-digit OTP code sent to ${email || 'your registered email'}`}
+      mode={mode}
+      setMode={setMode}
     >
       {error && (
         <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', padding: '12px 16px', borderRadius: 'var(--radius-md)', marginBottom: '16px', color: 'var(--color-danger)', fontSize: 'var(--text-sm)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -1,3 +1,5 @@
+import api from '../utils/auth';
+
 let cachedNotifications = [];
 
 export const NotificationService = {

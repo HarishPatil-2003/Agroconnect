@@ -1,10 +1,22 @@
 import axios from "axios";
 
+// Centralized API Base URL configuration
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
+// Cleaned base URL for requests (ensures `/api` is included consistently)
+const cleanedBaseURL = API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL}/api`;
+
+if (import.meta.env.DEV) {
+  console.log(`🔌 [DEVELOPMENT] API Base URL configured: ${cleanedBaseURL}`);
+}
+
 // Axios instance using config/proxy (backend on 5001)
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api",
+  baseURL: cleanedBaseURL,
   timeout: 10000, // 10 seconds timeout limit
+  withCredentials: true, // Crucial for sending/receiving HTTP-Only cookies cross-origin
 });
+
 
 // Attach JWT token automatically
 api.interceptors.request.use(

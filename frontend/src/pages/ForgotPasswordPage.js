@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import AuthLayout from '../layouts/AuthLayout';
 import Button from '../components/ui/Button';
 
-const ForgotPasswordPage = () => {
+const ForgotPasswordPage = ({ mode, setMode }) => {
   const navigate = useNavigate();
   const { forgotPassword, resetPassword } = useAuth();
 
@@ -97,6 +97,8 @@ const ForgotPasswordPage = () => {
     <AuthLayout
       title={step === 1 ? 'Reset Your Password' : 'Enter Reset OTP & New Password'}
       subtitle={step === 1 ? 'Enter your account email to receive a password reset OTP' : `Resetting password for ${email}`}
+      mode={mode}
+      setMode={setMode}
     >
       {error && (
         <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', padding: '12px 16px', borderRadius: 'var(--radius-md)', marginBottom: '16px', color: 'var(--color-danger)', fontSize: 'var(--text-sm)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>

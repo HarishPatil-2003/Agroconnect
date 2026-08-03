@@ -16,10 +16,10 @@ const createHandler = (message) => {
   };
 };
 
-// Auth endpoints (login, register, password reset) — 5 requests per 15 minutes per IP
+// Auth endpoints (login, register, password reset) — 20 requests per 15 minutes per IP
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'test' ? 100 : 5,
+  max: process.env.NODE_ENV === 'test' ? 100 : 20,
   standardHeaders: true,
   legacyHeaders: false,
   handler: createHandler('Too many authentication attempts. Please try again after 15 minutes.')

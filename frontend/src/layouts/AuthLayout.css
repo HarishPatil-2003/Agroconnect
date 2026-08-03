@@ -176,6 +176,20 @@ body.dark .auth-card {
   pointer-events: none;
 }
 
+.auth-card__theme-toggle {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  z-index: 20;
+}
+
+@media (max-width: 600px) {
+  .auth-card__theme-toggle {
+    top: 12px;
+    right: 12px;
+  }
+}
+
 /* ── Card Header ──────────────────────────────────────────────── */
 .auth-card__header {
   background: linear-gradient(135deg, #0f4c29 0%, #1FA64B 50%, #1e3a6e 100%);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, Tractor, Users, TrendingUp, ShieldCheck, Thermometer, Zap } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/auth';
 import { useLanguage } from '../../contexts/LanguageContext';
 import './Hero.css';
 
@@ -55,7 +55,7 @@ const Hero = () => {
 
   /* Load stats */
   useEffect(() => {
-    axios.get('/api/stats')
+    api.get('/stats')
       .then(res => {
         setStats(res.data);
         setCountStarted(true);
