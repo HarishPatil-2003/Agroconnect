@@ -60,7 +60,7 @@ const loginSchema = z.object({
 
 const verifyOtpSchema = z.object({
   email: emailSchema,
-  otp: z.string().length(6, 'OTP must be exactly 6 digits.').regex(/^\d+$/, 'OTP must contain only digits.')
+  otp: z.string().length(4, 'OTP must be exactly 4 digits.').regex(/^\d+$/, 'OTP must contain only digits.')
 });
 
 const resendOtpSchema = z.object({
@@ -73,7 +73,7 @@ const forgotPasswordSchema = z.object({
 
 const resetPasswordSchema = z.object({
   email: emailSchema,
-  otp: z.string().length(6, 'OTP must be exactly 6 digits.').regex(/^\d+$/, 'OTP must contain only digits.'),
+  otp: z.string().length(4, 'OTP must be exactly 4 digits.').regex(/^\d+$/, 'OTP must contain only digits.'),
   newPassword: z.string().regex(passwordRegex, {
     message: 'New password must be 8-64 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.'
   })

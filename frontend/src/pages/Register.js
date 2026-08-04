@@ -68,12 +68,16 @@ const Register = ({ mode, setMode }) => {
   /* Indian Phone Validation */
   const phoneValid = useMemo(() => {
     const clean = formData.phone.replace(/[^0-9]/g, '');
-    return /^[6-9]\d{9}$/.test(clean);
+    // Normalize: strip leading country code '91' if user typed +91XXXXXXXXXX
+    const normalized = clean.length === 12 && clean.startsWith('91') ? clean.slice(2) : clean;
+    return /^[6-9]\d{9}$/.test(normalized);
   }, [formData.phone]);
 
   const handlePhoneBlur = () => {
     if (!formData.phone) { setPhoneValidState(null); return; }
-    setPhoneValidState(phoneValid);
+    const clean = formData.phone.replace(/[^0-9]/g, '');
+    const normalized = clean.length === 12 && clean.startsWith('91') ? clean.slice(2) : clean;
+    setPhoneValidState(/^[6-9]\d{9}$/.test(normalized));
   };
 
   /* Email Validation */
@@ -160,17 +164,20 @@ const Register = ({ mode, setMode }) => {
       });
 
       setSuccess(true);
-      
+
       NotificationService.addNotification({
         title: 'Registration Successful',
-        message: 'Your AgroConnect account has been created successfully.',
+        message: 'A 4-digit OTP has been sent to your email. Please verify your account.',
         type: 'success'
       });
 
       localStorage.setItem('hasRegisteredBefore', 'true');
       await new Promise(r => setTimeout(r, 600));
-      // Redirect to login page
-      navigate('/login', { replace: true, state: { successMessage: 'Registration Successful. Please login to continue.' } });
+      // Navigate to OTP verification page so the user can enter the code
+      navigate(`/verify-otp?email=${encodeURIComponent(trimmedEmail)}`, {
+        replace: true,
+        state: { devOtp: res.devOtp }
+      });
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please verify your information.');
     } finally {
