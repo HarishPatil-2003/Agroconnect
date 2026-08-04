@@ -75,7 +75,19 @@ if (!process.env.REFRESH_SECRET) {
   console.log('✅ REFRESH_SECRET verified');
 }
 
-// PHASE 3: SMTP NODEMAILER AUDIT
+if (!process.env.EMAIL_USER && !process.env.SMTP_USER) {
+  console.error('❌ CRITICAL ERROR: EMAIL_USER (or SMTP_USER) is missing in .env — OTP emails will NOT be sent!');
+} else {
+  console.log(`✅ EMAIL_USER verified: ${process.env.EMAIL_USER || process.env.SMTP_USER}`);
+}
+
+if (!process.env.EMAIL_PASS && !process.env.SMTP_PASS) {
+  console.error('❌ CRITICAL ERROR: EMAIL_PASS (or SMTP_PASS) is missing in .env — OTP emails will NOT be sent!');
+} else {
+  console.log('✅ EMAIL_PASS verified');
+}
+
+// PHASE 3: SMTP NODEMAILER AUDIT — live connection test
 verifySmtpConnection();
 
 // MongoDB connection

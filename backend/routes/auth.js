@@ -70,9 +70,9 @@ router.post(
       const hashedPassword = await bcrypt.hash(password, 12);
 
       // Generate 6-Digit Verification OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-      console.log(`🔐 [OTP GEN] Generated 6-Digit OTP: ${otp} for ${normalizedEmail} (Expires: 15 mins)`);
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+      console.log(`🔐 [OTP GEN] Generated 4-Digit OTP: ${otp} for ${normalizedEmail} (Expires: 5 mins)`);
 
       const user = new User({
         name,
@@ -92,9 +92,19 @@ router.post(
       await user.save();
       console.log(`💾 [MONGO WRITE SUCCESS] User registered with isVerified = false (ID: ${user._id})`);
 
-      // Send OTP Email via Nodemailer
-      const sendResult = await sendOtpEmail(normalizedEmail, otp, name, 'registration');
-      console.log(`✉️ [SMTP SEND] Method: ${sendResult.method}`);
+      // Send OTP Email via Nodemailer — throws if SMTP not configured or delivery fails
+      try {
+        const sendResult = await sendOtpEmail(normalizedEmail, otp, name, 'registration');
+        console.log(`✉️ [SMTP SEND] Method: ${sendResult.method}`);
+      } catch (emailErr) {
+        console.error(`❌ [SMTP SEND FAILED] Could not deliver OTP to ${normalizedEmail}: ${emailErr.message}`);
+        // Roll back: remove the unverified user so re-registration works once SMTP is fixed
+        await user.deleteOne();
+        return res.status(503).json({
+          message: 'Email service is currently unavailable. Your registration could not be completed. Please try again later.',
+          error: process.env.NODE_ENV !== 'production' ? emailErr.message : undefined
+        });
+      }
 
       res.status(201).json({
         message: 'Registration successful! A 6-digit verification code has been sent to your email.',
@@ -234,17 +244,26 @@ router.post('/resend-otp', authLimiter, validate(resendOtpSchema), async (req, r
     }
 
     // Generate new OTP
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
     user.otp = newOtp;
-    user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+    user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
     user.otpAttempts = 0;
     user.otpResendCount = (user.otpResendCount || 0) + 1;
     user.otpLastSentAt = new Date();
 
     await user.save();
-    console.log(`🔄 [OTP RESENT] New OTP: ${newOtp} for ${email} (Resend ${user.otpResendCount}/3)`);
+    console.log(`🔄 [OTP RESENT] New OTP generated for ${email} (Resend ${user.otpResendCount}/3)`);
 
-    const sendResult = await sendOtpEmail(email, newOtp, user.name, 'resend');
+    try {
+      const sendResult = await sendOtpEmail(email, newOtp, user.name, 'resend');
+      console.log(`✉️ [SMTP SEND] Resend OTP method: ${sendResult.method}`);
+    } catch (emailErr) {
+      console.error(`❌ [SMTP SEND FAILED] Could not resend OTP to ${email}: ${emailErr.message}`);
+      return res.status(503).json({
+        message: 'Email service is currently unavailable. Could not resend OTP. Please try again later.',
+        error: process.env.NODE_ENV !== 'production' ? emailErr.message : undefined
+      });
+    }
 
     res.json({
       message: 'A new 6-digit OTP code has been sent to your email.',
@@ -307,12 +326,21 @@ router.post(
       // Check Account Verification Status
       if (!user.isVerified) {
         console.warn(`⚠️ [LOGIN BLOCKED] Account ${email} is not verified. Generating fresh OTP.`);
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
         user.otp = otp;
-        user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+        user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
         user.otpAttempts = 0;
         await user.save();
-        await sendOtpEmail(email, otp, user.name, 'login_verification');
+
+        try {
+          await sendOtpEmail(email, otp, user.name, 'login_verification');
+        } catch (emailErr) {
+          console.error(`❌ [SMTP SEND FAILED] Could not deliver login verification OTP to ${email}: ${emailErr.message}`);
+          return res.status(503).json({
+            message: 'Email service is currently unavailable. Verification email could not be sent. Please try again later.',
+            error: process.env.NODE_ENV !== 'production' ? emailErr.message : undefined
+          });
+        }
 
         return res.status(403).json({
           message: 'Account not verified. A new verification code has been sent to your email.',
@@ -380,13 +408,21 @@ router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), asy
       return res.status(404).json({ message: 'No account registered with this email address.' });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     user.otp = otp;
-    user.otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+    user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
     user.otpAttempts = 0;
     await user.save();
 
-    await sendOtpEmail(email, otp, user.name, 'reset');
+    try {
+      await sendOtpEmail(email, otp, user.name, 'reset');
+    } catch (emailErr) {
+      console.error(`❌ [SMTP SEND FAILED] Could not deliver password reset OTP to ${email}: ${emailErr.message}`);
+      return res.status(503).json({
+        message: 'Email service is currently unavailable. Password reset email could not be sent. Please try again later.',
+        error: process.env.NODE_ENV !== 'production' ? emailErr.message : undefined
+      });
+    }
 
     res.json({
       message: 'Password reset code sent to your email.',

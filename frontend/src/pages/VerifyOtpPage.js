@@ -12,16 +12,16 @@ const VerifyOtpPage = ({ mode, setMode }) => {
   const { verifyOtp, resendOtp } = useAuth();
 
   const [email, setEmail]         = useState(searchParams.get('email') || '');
-  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '']);
   const [error, setError]         = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading]     = useState(false);
   const [resending, setResending] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(900); // 15 minutes countdown
+  const [timerSeconds, setTimerSeconds] = useState(300); // 5 minutes countdown
   const [resendCooldown, setResendCooldown] = useState(0); // Instantly ready unless resend clicked
   const [devOtpHint, setDevOtpHint] = useState(location.state?.devOtp || '');
 
-  const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+  const inputRefs = [useRef(), useRef(), useRef(), useRef()];
 
   // Countdown Timers
   useEffect(() => {
@@ -53,7 +53,7 @@ const VerifyOtpPage = ({ mode, setMode }) => {
     setOtpDigits(newDigits);
 
     // Auto Advance to Next Input
-    if (value && index < 5) {
+    if (value && index < 3) {
       inputRefs[index + 1].current.focus();
     }
   };
@@ -69,17 +69,17 @@ const VerifyOtpPage = ({ mode, setMode }) => {
   const handlePaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').trim().replace(/[^0-9]/g, '');
-    if (pastedData.length === 6) {
+    if (pastedData.length === 4) {
       setOtpDigits(pastedData.split(''));
-      inputRefs[5].current.focus();
+      inputRefs[3].current.focus();
     }
   };
 
   const handleVerifySubmit = async (e) => {
     e.preventDefault();
     const fullOtp = otpDigits.join('');
-    if (fullOtp.length !== 6) {
-      setError('Please enter all 6 digits of the OTP verification code.');
+    if (fullOtp.length !== 4) {
+      setError('Please enter all 4 digits of the OTP verification code.');
       return;
     }
 
@@ -117,10 +117,10 @@ const VerifyOtpPage = ({ mode, setMode }) => {
 
     try {
       const res = await resendOtp(email);
-      setSuccessMsg('A new 6-digit OTP code has been sent.');
+      setSuccessMsg('A new 4-digit OTP code has been sent.');
       setResendCooldown(60);
-      setTimerSeconds(900);
-      setOtpDigits(['', '', '', '', '', '']);
+      setTimerSeconds(300);
+      setOtpDigits(['', '', '', '']);
       if (res.devOtp) setDevOtpHint(res.devOtp);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to resend OTP.');
@@ -132,7 +132,7 @@ const VerifyOtpPage = ({ mode, setMode }) => {
   return (
     <AuthLayout
       title="Verify Your Email"
-      subtitle={`Enter the 6-digit OTP code sent to ${email || 'your registered email'}`}
+      subtitle={`Enter the 4-digit OTP code sent to ${email || 'your registered email'}`}
       mode={mode}
       setMode={setMode}
     >
@@ -161,7 +161,7 @@ const VerifyOtpPage = ({ mode, setMode }) => {
             <Sparkles size={16} /> <span>[Development Mode / Demo OTP]</span>
           </div>
           <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-            SMTP is not configured in <code>.env</code>. Your 6-digit verification code is:
+            SMTP is not configured in <code>.env</code>. Your 4-digit verification code is:
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-surface)', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)' }}>
             <strong style={{ fontSize: '22px', letterSpacing: '4px', fontFamily: 'monospace', color: 'var(--color-primary-600)' }}>
@@ -171,7 +171,7 @@ const VerifyOtpPage = ({ mode, setMode }) => {
               type="button"
               onClick={() => {
                 const code = devOtpHint.toString();
-                if (code.length === 6) setOtpDigits(code.split(''));
+                if (code.length === 4) setOtpDigits(code.split(''));
               }}
               style={{
                 background: 'var(--color-primary-600)',
@@ -211,7 +211,7 @@ const VerifyOtpPage = ({ mode, setMode }) => {
         {/* 6 Individual Digit Inputs */}
         <div className="ds-form-group">
           <label className="auth-label" style={{ textAlign: 'center', display: 'block', marginBottom: '8px' }}>
-            6-Digit Verification OTP Code
+            4-Digit Verification OTP Code
           </label>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }} onPaste={handlePaste}>
             {otpDigits.map((digit, idx) => (
@@ -254,7 +254,7 @@ const VerifyOtpPage = ({ mode, setMode }) => {
         {/* Submit */}
         <button
           type="submit"
-          disabled={otpDigits.join('').length !== 6 || loading}
+          disabled={otpDigits.join('').length !== 4 || loading}
           className="auth-submit-btn"
           style={{
             width: '100%',
@@ -263,24 +263,24 @@ const VerifyOtpPage = ({ mode, setMode }) => {
             justifyContent: 'center',
             gap: 10,
             border: 'none',
-            cursor: otpDigits.join('').length !== 6 || loading ? 'not-allowed' : 'pointer',
+            cursor: otpDigits.join('').length !== 4 || loading ? 'not-allowed' : 'pointer',
             fontFamily: 'var(--font-body)',
             color: '#fff',
             background: loading
               ? '#cbd5e1'
               : 'linear-gradient(135deg, #1FA64B 0%, #16a34a 100%)',
-            boxShadow: otpDigits.join('').length === 6 ? '0 4px 16px rgba(31,166,75,0.3)' : 'none',
+            boxShadow: otpDigits.join('').length === 4 ? '0 4px 16px rgba(31,166,75,0.3)' : 'none',
             transition: 'transform 0.2s ease, box-shadow 0.2s ease'
           }}
           onMouseEnter={e => {
-            if (otpDigits.join('').length === 6 && !loading) {
+            if (otpDigits.join('').length === 4 && !loading) {
               e.currentTarget.style.transform = 'translateY(-2px)';
               e.currentTarget.style.boxShadow = '0 8px 24px rgba(31,166,75,0.4)';
             }
           }}
           onMouseLeave={e => {
             e.currentTarget.style.transform = '';
-            e.currentTarget.style.boxShadow = otpDigits.join('').length === 6 ? '0 4px 16px rgba(31,166,75,0.3)' : 'none';
+            e.currentTarget.style.boxShadow = otpDigits.join('').length === 4 ? '0 4px 16px rgba(31,166,75,0.3)' : 'none';
           }}
         >
           {loading ? (

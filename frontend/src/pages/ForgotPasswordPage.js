@@ -62,7 +62,7 @@ const ForgotPasswordPage = ({ mode, setMode }) => {
   // Step 2: Reset Password Submit
   const handleResetSubmit = async (e) => {
     e.preventDefault();
-    if (!allPwChecksPass || !passwordsMatch || otp.length !== 6) return;
+    if (!allPwChecksPass || !passwordsMatch || otp.length !== 4) return;
 
     setLoading(true);
     setError('');
@@ -137,16 +137,16 @@ const ForgotPasswordPage = ({ mode, setMode }) => {
         <form onSubmit={handleResetSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* OTP Input */}
           <div className="ds-form-group">
-            <label className="ds-label">6-Digit Reset OTP Code *</label>
+            <label className="ds-label">4-Digit Reset OTP Code *</label>
             <div style={{ position: 'relative' }}>
               <KeyRound size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
               <input
                 type="text"
-                maxLength={6}
+                maxLength={4}
                 required
                 value={otp}
                 onChange={e => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                placeholder="Enter 6-digit OTP"
+                placeholder="Enter 4-digit OTP"
                 style={{ ...inputStyle, fontFamily: 'monospace', fontSize: '18px', fontWeight: 'bold' }}
               />
             </div>
@@ -194,7 +194,7 @@ const ForgotPasswordPage = ({ mode, setMode }) => {
             </div>
           </div>
 
-          <Button type="submit" variant="primary" size="lg" fullWidth disabled={!allPwChecksPass || !passwordsMatch || otp.length !== 6 || loading} loading={loading}>
+          <Button type="submit" variant="primary" size="lg" fullWidth disabled={!allPwChecksPass || !passwordsMatch || otp.length !== 4 || loading} loading={loading}>
             {loading ? 'Updating Password…' : 'Update Password & Sign In'}
           </Button>
         </form>

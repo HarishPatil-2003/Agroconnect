@@ -10,6 +10,9 @@ const emailBreaker = getCircuitBreaker('SMTP_Email_Service', {
 
 /**
  * Configure Nodemailer Transporter
+ * Reads EMAIL_USER / EMAIL_PASS (or SMTP_USER / SMTP_PASS as aliases).
+ * Returns { transporter, user } when credentials are present,
+ * or { transporter: null, user: null } when they are not.
  */
 const getTransporter = () => {
   const user = process.env.EMAIL_USER || process.env.SMTP_USER;
@@ -42,32 +45,60 @@ const getTransporter = () => {
 };
 
 /**
- * Verify Transporter SMTP Connection
+ * Verify Transporter SMTP Connection — called once at server startup.
+ * Logs clearly if credentials are missing so the operator knows exactly what to fix.
  */
 const verifySmtpConnection = async () => {
-  const { transporter, user } = getTransporter();
-  if (!transporter) {
-    console.log('ℹ️ SMTP Info: EMAIL_USER / EMAIL_PASS not configured in .env. OTP will log to console in dev mode.');
+  const emailUser = process.env.EMAIL_USER || process.env.SMTP_USER;
+  const emailPass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
+
+  if (!emailUser) {
+    console.error('❌ CRITICAL ERROR: EMAIL_USER (or SMTP_USER) is missing in .env — OTP emails will NOT be sent!');
     return false;
   }
+
+  if (!emailPass) {
+    console.error('❌ CRITICAL ERROR: EMAIL_PASS (or SMTP_PASS) is missing in .env — OTP emails will NOT be sent!');
+    return false;
+  }
+
+  const { transporter, user } = getTransporter();
 
   try {
     await transporter.verify();
     console.log(`✅ SMTP Connection Verified Successfully! Connected as: ${user}`);
     return true;
   } catch (err) {
-    console.error(`⚠️ SMTP Verification Error: ${err.message}`);
+    console.error(`❌ CRITICAL ERROR: SMTP Verification Failed for ${user}: ${err.message}`);
     return false;
   }
 };
 
 /**
- * Send Professional HTML Email with OTP (Protected by CircuitBreaker)
+ * Send Professional HTML Email with OTP (Protected by CircuitBreaker).
+ *
+ * Throws an Error if:
+ *  - EMAIL_USER / EMAIL_PASS are not configured in .env
+ *  - SMTP delivery fails (after circuit-breaker exhaustion)
+ *
+ * Returns { success: true, method: 'smtp' } on confirmed delivery.
  */
 const sendOtpEmail = async (email, otp, name = 'Valued User', type = 'registration') => {
   const { transporter, user } = getTransporter();
-  const subject = type === 'reset' 
-    ? '🔐 AgroConnect Password Reset Code' 
+
+  // Hard fail — never silently swallow missing credentials
+  if (!transporter) {
+    const missingVar = !(process.env.EMAIL_USER || process.env.SMTP_USER)
+      ? 'EMAIL_USER'
+      : 'EMAIL_PASS';
+    throw new Error(
+      `SMTP not configured: ${missingVar} is missing in environment variables. ` +
+      `Set EMAIL_USER and EMAIL_PASS in your .env file (or Render Environment Variables) to enable OTP delivery.`
+    );
+  }
+
+  const subject = type === 'reset'
+    ? '🔐 AgroConnect Password Reset Code'
     : '🌾 AgroConnect Email Verification Code';
 
   const htmlContent = `
@@ -114,27 +145,27 @@ const sendOtpEmail = async (email, otp, name = 'Valued User', type = 'registrati
     </html>
   `;
 
-  if (!transporter) {
-    console.log(`🔑 [DEV MODE] OTP generated for ${email}: ${otp}`);
-    return { success: true, method: 'console' };
-  }
-
-  // Execute via CircuitBreaker
+  // Execute via CircuitBreaker — throws on failure (no silent fallback)
   return await emailBreaker.execute(
     async () => {
-      await transporter.sendMail({
-        from: `"AgroConnect Verification" <${user}>`,
-        to: email,
-        subject: subject,
-        html: htmlContent
-      });
-      console.log(`[SMTP LOG] Verification OTP email successfully delivered to ${email}`);
-      return { success: true, method: 'smtp' };
+      try {
+        await transporter.sendMail({
+          from: `"AgroConnect Verification" <${user}>`,
+          to: email,
+          subject: subject,
+          html: htmlContent
+        });
+        console.log(`✅ [SMTP LOG] OTP email successfully delivered to ${email} via ${user}`);
+        return { success: true, method: 'smtp' };
+      } catch (smtpErr) {
+        console.error(`❌ [SMTP ERROR] Failed to deliver OTP email to ${email}:`, smtpErr.message);
+        throw smtpErr; // re-throw so CircuitBreaker registers the failure
+      }
     },
     async (err) => {
-      console.error(`⚠️ [EMAIL CIRCUIT BREAKER FALLBACK] Fast-failing SMTP delivery for ${email}. Falling back to console OTP logging:`, err.message);
-      console.log(`🔑 [FALLBACK LOG] OTP for ${email}: ${otp}`);
-      return { success: false, fallbackLogged: true, error: err.message };
+      // CircuitBreaker fallback — surface the real error, never log the OTP
+      console.error(`❌ [EMAIL CIRCUIT BREAKER] SMTP delivery failed for ${email}. Circuit open. Error: ${err.message}`);
+      throw new Error(`Email delivery failed: ${err.message}`);
     }
   );
 };
