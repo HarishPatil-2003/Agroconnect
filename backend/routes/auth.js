@@ -46,7 +46,8 @@ router.post(
     console.log(`\n📥 [AUTH REQ] POST /api/auth/register - Email: ${req.body.email}`);
     
     const { name, email, phone, password, role, address } = req.body;
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const clean = phone.replace(/[^0-9]/g, '');
+    const cleanPhone = clean.length === 12 && clean.startsWith('91') ? clean.slice(2) : clean;
 
     try {
       // Double-ensure email normalization
@@ -284,48 +285,65 @@ router.post(
   authLimiter,
   validate(loginSchema),
   async (req, res) => {
-    console.log(`\n📥 [AUTH REQ] POST /api/auth/login - Email: ${req.body.email}`);
+    console.log(`\n📥 [AUTH REQ] POST /api/auth/login - Raw email: "${req.body.email}"`);
 
     const { email, password } = req.body;
 
+    // ── STEP 1: Defensive email normalization ──────────────────────────────────
+    // The Zod loginSchema already transforms the email via .trim().toLowerCase(),
+    // but we normalize again here as an explicit safety net — consistent with
+    // every other auth route (/verify-otp, /resend-otp, /forgot-password, etc.).
+    // MongoDB queries are case-sensitive: findOne({ email: "A@b.com" }) will NOT
+    // match a document stored as "a@b.com" even with Mongoose lowercase:true
+    // (that option only applies on WRITE, not on READ/query).
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log(`🔍 [LOGIN STEP 1] Email normalized: "${email}" → "${normalizedEmail}"`);
+
     try {
-      const user = await User.findOne({ email });
+      // ── STEP 2: Look up user by normalized email ─────────────────────────────
+      const user = await User.findOne({ email: normalizedEmail });
       if (!user) {
-        console.warn(`❌ [LOGIN FAILED] User not found: ${email}`);
+        console.warn(`❌ [LOGIN STEP 2] No document found in DB for email: "${normalizedEmail}"`);
         return res.status(400).json({ message: 'Invalid email or password.' });
       }
+      console.log(`✅ [LOGIN STEP 2] User found — ID: ${user._id} | storedEmail: "${user.email}" | isVerified: ${user.isVerified} | loginAttempts: ${user.loginAttempts}`);
 
-      // Check Account Lockout State
+      // ── STEP 3: Check account lockout BEFORE bcrypt (saves CPU on locked accts)
       if (user.lockUntil && user.lockUntil > Date.now()) {
         const minutesLeft = Math.ceil((user.lockUntil - Date.now()) / (60 * 1000));
-        console.warn(`🔒 [LOGIN BLOCKED] Account ${email} is temporarily locked out. Minutes left: ${minutesLeft}`);
+        console.warn(`🔒 [LOGIN STEP 3] Account locked — "${normalizedEmail}" | Minutes remaining: ${minutesLeft}`);
         return res.status(403).json({
-          message: 'Invalid email or password.'
+          message: `Account temporarily locked due to too many failed attempts. Please try again in ${minutesLeft} minute(s).`,
+          locked: true
         });
       }
+      console.log(`✅ [LOGIN STEP 3] Account is not locked.`);
 
+      // ── STEP 4: Compare password with stored bcrypt hash ─────────────────────
+      console.log(`🔐 [LOGIN STEP 4] Running bcrypt.compare...`);
       const isMatch = await bcrypt.compare(password, user.password);
+      console.log(`🔐 [LOGIN STEP 4] bcrypt.compare result: ${isMatch}`);
+
       if (!isMatch) {
         user.loginAttempts = (user.loginAttempts || 0) + 1;
         if (user.loginAttempts >= 5) {
           user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
-          console.warn(`🔒 [ACCOUNT LOCKED] Too many failed logins. User: ${email} locked for 15 mins.`);
+          console.warn(`🔒 [LOGIN STEP 4] 5 failed attempts — Account "${normalizedEmail}" locked for 15 mins.`);
         }
         await user.save();
-
-        console.warn(`❌ [LOGIN FAILED] Invalid password for: ${email}. Attempt ${user.loginAttempts}/5`);
-        
+        console.warn(`❌ [LOGIN STEP 4] Password mismatch for "${normalizedEmail}" — Attempt ${user.loginAttempts}/5`);
         return res.status(400).json({ message: 'Invalid email or password.' });
       }
 
-      // Successful password check: Reset lockouts
+      // ── STEP 5: Password matched — reset lockout counters ────────────────────
       user.loginAttempts = 0;
       user.lockUntil = null;
       await user.save();
+      console.log(`✅ [LOGIN STEP 5] Password matched — loginAttempts reset to 0.`);
 
-      // Check Account Verification Status
+      // ── STEP 6: Check email verification status ───────────────────────────────
       if (!user.isVerified) {
-        console.warn(`⚠️ [LOGIN BLOCKED] Account ${email} is not verified. Generating fresh OTP.`);
+        console.warn(`⚠️ [LOGIN STEP 6] Account not verified — "${normalizedEmail}" | Sending fresh OTP.`);
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
         user.otp = otp;
         user.otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
@@ -333,9 +351,9 @@ router.post(
         await user.save();
 
         try {
-          await sendOtpEmail(email, otp, user.name, 'login_verification');
+          await sendOtpEmail(normalizedEmail, otp, user.name, 'login_verification');
         } catch (emailErr) {
-          console.error(`❌ [SMTP SEND FAILED] Could not deliver login verification OTP to ${email}: ${emailErr.message}`);
+          console.error(`❌ [LOGIN STEP 6] SMTP failed — could not send verification OTP to "${normalizedEmail}": ${emailErr.message}`);
           return res.status(503).json({
             message: 'Email service is currently unavailable. Verification email could not be sent. Please try again later.',
             error: process.env.NODE_ENV !== 'production' ? emailErr.message : undefined
@@ -343,14 +361,15 @@ router.post(
         }
 
         return res.status(403).json({
-          message: 'Account not verified. A new verification code has been sent to your email.',
+          message: 'Email not verified. A new verification code has been sent to your email.',
           requiresVerification: true,
           email: user.email,
           devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
         });
       }
+      console.log(`✅ [LOGIN STEP 6] Account is verified.`);
 
-      // Sign 60-Minute JWT Access Token
+      // ── STEP 7: Issue JWT access token + refresh cookie ───────────────────────
       const payload = {
         user: {
           id: user.id,
@@ -359,7 +378,8 @@ router.post(
       };
 
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '60m' });
-      
+      console.log(`🔑 [LOGIN STEP 7] JWT access token issued for User ID: ${user.id} (role: ${user.role})`);
+
       // Set Refresh Token in HttpOnly Cookie (SameSite=None for cross-site Render-Vercel)
       const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_SECRET, { expiresIn: '7d' });
       res.cookie('refreshToken', refreshToken, {
@@ -369,7 +389,7 @@ router.post(
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
-      console.log(`🔑 [LOGIN SUCCESS] Issued token for User ID: ${user.id} (${user.role})`);
+      console.log(`✅ [LOGIN SUCCESS] "${normalizedEmail}" (ID: ${user.id}) signed in successfully.`);
 
       res.json({
         token,
@@ -385,8 +405,8 @@ router.post(
         }
       });
     } catch (err) {
-      console.error(`💥 [LOGIN ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Body:`, { ...req.body, password: req.body.password ? '***' : undefined }, `\nStack Trace:`, err.stack);
-      res.status(500).json({ message: 'Server error during sign in.' });
+      console.error(`💥 [LOGIN ERROR] Path: ${req.originalUrl} | Method: ${req.method} | Email: "${normalizedEmail}" | Error: ${err.message}\nStack Trace:`, err.stack);
+      res.status(500).json({ message: 'Server error during sign in. Please try again.' });
     }
   }
 );

@@ -94,10 +94,23 @@ const Login = ({ mode, setMode }) => {
       await new Promise(r => setTimeout(r, 600));
       navigate('/', { replace: true });
     } catch (err) {
-      if (err.response?.status === 403 && err.response?.data?.requiresVerification) {
+      const status  = err.response?.status;
+      const data    = err.response?.data;
+
+      // Unverified account — redirect to OTP page
+      if (status === 403 && data?.requiresVerification) {
         navigate(`/verify-otp?email=${encodeURIComponent(trimmedEmail)}`, {
-          state: { devOtp: err.response?.data?.devOtp }
+          state: { devOtp: data?.devOtp }
         });
+        return;
+      }
+
+      // Use the server's specific message when available; fall back gracefully
+      const serverMessage = data?.message;
+      if (serverMessage) {
+        setError(serverMessage);
+      } else if (err.code === 'ECONNABORTED' || err.message === 'Network Error') {
+        setError('Network error. Please check your connection and try again.');
       } else {
         setError('Invalid email or password.');
       }
