@@ -2,37 +2,28 @@ const nodemailer = require('nodemailer');
 const { getCircuitBreaker } = require('./circuitBreaker');
 
 // ── SMTP timeout values ──────────────────────────────────────────────────────
-// Nodemailer timeouts (set in getTransporter below):
 const SMTP_CONNECTION_TIMEOUT = Number(process.env.SMTP_CONNECTION_TIMEOUT) || 15000;
 const SMTP_GREETING_TIMEOUT   = Number(process.env.SMTP_GREETING_TIMEOUT)   || 15000;
 const SMTP_SOCKET_TIMEOUT     = Number(process.env.SMTP_SOCKET_TIMEOUT)     || 15000;
-
-// Circuit Breaker timeout — MUST always exceed the largest Nodemailer timeout.
-// The Circuit Breaker wraps the entire SMTP call in Promise.race(); if it fires
-// before Nodemailer's own timeout, the real SMTP error (ETIMEDOUT, 535, etc.) is
-// silently replaced by "CircuitBreaker call timed out" — which gives no diagnostic
-// information at all.
-// Rule enforced below: CB timeout = max(Nodemailer timeouts) + 5 000 ms safety margin.
-const SMTP_CIRCUIT_TIMEOUT_CONFIGURED = Number(process.env.SMTP_CIRCUIT_TIMEOUT) || 30000;
-const SMTP_NODEMAILER_MAX = Math.max(SMTP_CONNECTION_TIMEOUT, SMTP_GREETING_TIMEOUT, SMTP_SOCKET_TIMEOUT);
-const SMTP_CIRCUIT_TIMEOUT = Math.max(SMTP_CIRCUIT_TIMEOUT_CONFIGURED, SMTP_NODEMAILER_MAX + 5000);
-
-// ── Startup diagnostic log ────────────────────────────────────────────────────
-console.log(
-  `⚙️  [SMTP CONFIG] Timeouts:\n` +
-  `     connectionTimeout : ${SMTP_CONNECTION_TIMEOUT} ms\n` +
-  `     greetingTimeout   : ${SMTP_GREETING_TIMEOUT} ms\n` +
-  `     socketTimeout     : ${SMTP_SOCKET_TIMEOUT} ms\n` +
-  `     CircuitBreaker    : ${SMTP_CIRCUIT_TIMEOUT} ms  (env SMTP_CIRCUIT_TIMEOUT=${process.env.SMTP_CIRCUIT_TIMEOUT || 'not set, using default 30000'})\n` +
-  `     CB > max(NM)? ${SMTP_CIRCUIT_TIMEOUT > SMTP_NODEMAILER_MAX ? '✅ YES — CircuitBreaker will not mask Nodemailer errors' : '❌ NO  — CircuitBreaker timeout is too short!'}`
-);
+const SMTP_TIMEOUT = Math.max(SMTP_CONNECTION_TIMEOUT, SMTP_GREETING_TIMEOUT, SMTP_SOCKET_TIMEOUT);
 
 const emailBreaker = getCircuitBreaker('SMTP_Email_Service', {
   failureThreshold: 3,
-  timeoutMs:        SMTP_CIRCUIT_TIMEOUT,  // now always > Nodemailer's largest timeout
-  resetTimeoutMs:   15000,
-  maxConcurrency:   5
+  timeoutMs: 30000,
+  resetTimeoutMs: 15000,
+  maxConcurrency: 5
 });
+
+const CIRCUIT_BREAKER_TIMEOUT = emailBreaker.timeoutMs;
+
+console.log(`SMTP Timeout: ${SMTP_TIMEOUT} ms`);
+console.log(`Circuit Breaker Timeout: ${CIRCUIT_BREAKER_TIMEOUT} ms`);
+
+if (CIRCUIT_BREAKER_TIMEOUT > SMTP_TIMEOUT) {
+  console.log(`✅ Verification: Circuit Breaker Timeout (${CIRCUIT_BREAKER_TIMEOUT} ms) is greater than SMTP Timeout (${SMTP_TIMEOUT} ms).`);
+} else {
+  console.warn(`⚠️ WARNING: Circuit Breaker Timeout (${CIRCUIT_BREAKER_TIMEOUT} ms) is NOT greater than SMTP Timeout (${SMTP_TIMEOUT} ms)! This may cause premature timeouts.`);
+}
 
 /**
  * Configure Nodemailer Transporter

@@ -13,7 +13,7 @@ class CircuitBreaker {
     this.name = name;
     this.failureThreshold = options.failureThreshold || 3;
     this.resetTimeoutMs = options.resetTimeoutMs || 15000; // 15s cooldown before trial
-    this.timeoutMs = options.timeoutMs || 5000;             // 5s per call limit
+    this.timeoutMs = Number(process.env.CIRCUIT_BREAKER_TIMEOUT_MS) || options.timeoutMs || 30000;
     this.maxConcurrency = options.maxConcurrency || 5;
 
     this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
