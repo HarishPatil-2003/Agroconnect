@@ -37,13 +37,20 @@ const emailSchema = z.string()
   .regex(/^[A-Za-z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.')
   .transform(val => val.trim().toLowerCase());
 
+const phoneSchema = z.string()
+  .transform(val => {
+    const clean = val.replace(/[^0-9]/g, '');
+    return clean.length === 12 && clean.startsWith('91') ? clean.slice(2) : clean;
+  })
+  .refine(val => indianPhoneRegex.test(val), {
+    message: 'Phone number must be a valid 10-digit Indian mobile number.'
+  });
+
 // Authentication Schemas
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.').max(60, 'Name must be under 60 characters.'),
   email: emailSchema,
-  phone: z.string().refine(val => indianPhoneRegex.test(val.replace(/[^0-9]/g, '')), {
-    message: 'Phone number must be a valid 10-digit Indian mobile number.'
-  }),
+  phone: phoneSchema,
   password: z.string().regex(passwordRegex, {
     message: 'Password must be 8-64 characters with at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.'
   }),
@@ -81,9 +88,7 @@ const resetPasswordSchema = z.object({
 
 const profileUpdateSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.').max(60, 'Name must be under 60 characters.').optional(),
-  phone: z.string().refine(val => indianPhoneRegex.test(val.replace(/[^0-9]/g, '')), {
-    message: 'Phone number must be a valid 10-digit Indian mobile number.'
-  }).optional(),
+  phone: phoneSchema.optional(),
   address: z.string().max(200, 'Address must be under 200 characters.').optional()
 });
 
@@ -91,9 +96,7 @@ const profileUpdateSchema = z.object({
 const profileCreateSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters.').max(60, 'Full name must be under 60 characters.'),
   email: emailSchema,
-  phone: z.string().refine(val => indianPhoneRegex.test(val.replace(/[^0-9]/g, '')), {
-    message: 'Phone number must be a valid 10-digit Indian mobile number.'
-  }).optional(),
+  phone: phoneSchema.optional(),
   address: z.string().max(200, 'Address must be under 200 characters.').optional().default(''),
   state: z.string().optional().default(''),
   district: z.string().optional().default(''),

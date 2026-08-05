@@ -169,6 +169,25 @@ const ForgotPasswordPage = ({ mode, setMode }) => {
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+            {newPassword && !allPwChecksPass && (
+              <div style={{ marginTop: 6, padding: '6px 8px', borderRadius: 'var(--radius-sm)', background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', fontSize: '10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <div style={{ color: pwChecks.length ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {pwChecks.length ? '✓' : '✕'} 8-64 characters
+                </div>
+                <div style={{ color: pwChecks.upper ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {pwChecks.upper ? '✓' : '✕'} One uppercase letter (A-Z)
+                </div>
+                <div style={{ color: pwChecks.lower ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {pwChecks.lower ? '✓' : '✕'} One lowercase letter (a-z)
+                </div>
+                <div style={{ color: pwChecks.number ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {pwChecks.number ? '✓' : '✕'} One number (0-9)
+                </div>
+                <div style={{ color: pwChecks.special ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {pwChecks.special ? '✓' : '✕'} One special character
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Confirm New Password */}

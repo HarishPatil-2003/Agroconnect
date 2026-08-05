@@ -123,14 +123,25 @@ const Register = ({ mode, setMode }) => {
 
   /* Form Validity Gate */
   const isFormValid = useMemo(() => {
-    return (
-      formData.name.trim() !== '' &&
+    const isValid = (
+      formData.name.trim().length >= 2 &&
       emailValid &&
       phoneValid &&
       allPwChecksPass &&
       passwordsMatch &&
       formData.agreeTerms
     );
+    console.log('[DEBUG] Form Validity:', {
+      name: formData.name,
+      nameValid: formData.name.trim().length >= 2,
+      emailValid,
+      phoneValid,
+      allPwChecksPass,
+      passwordsMatch,
+      agreeTerms: formData.agreeTerms,
+      isValid
+    });
+    return isValid;
   }, [formData.name, emailValid, phoneValid, allPwChecksPass, passwordsMatch, formData.agreeTerms]);
 
   const handleSubmit = async (e) => {
@@ -154,10 +165,11 @@ const Register = ({ mode, setMode }) => {
 
     try {
       const cleanPhone = formData.phone.replace(/[^0-9]/g, '');
+      const normalizedPhone = cleanPhone.length === 12 && cleanPhone.startsWith('91') ? cleanPhone.slice(2) : cleanPhone;
       const res = await register({
         name: formData.name,
         email: trimmedEmail,
-        phone: cleanPhone,
+        phone: normalizedPhone,
         password: formData.password,
         role: formData.role,
         address: formData.address
@@ -253,10 +265,10 @@ const Register = ({ mode, setMode }) => {
                 onChange={handleChange}
                 onBlur={handlePhoneBlur}
                 placeholder="+91 **********"
-                className={inputClass(phoneValidState)}
+                className={inputClass(formData.phone ? (phoneValid ? true : phoneValidState) : null)}
                 aria-invalid={phoneValidState === false}
               />
-              {phoneValidState === true && (
+              {phoneValid && (
                 <CheckCircle2
                   size={14}
                   style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#22c55e', zIndex: 2 }}
@@ -293,10 +305,10 @@ const Register = ({ mode, setMode }) => {
                 onChange={handleChange}
                 onBlur={handleEmailBlur}
                 placeholder="name@gmail.com"
-                className={inputClass(emailValidState)}
+                className={inputClass(formData.email ? (emailValid ? true : emailValidState) : null)}
                 aria-invalid={emailValidState === false}
               />
-              {emailValidState === true && (
+              {emailValid && (
                 <CheckCircle2
                   size={14}
                   style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#22c55e', zIndex: 2 }}
@@ -356,15 +368,35 @@ const Register = ({ mode, setMode }) => {
               </button>
             </div>
 
-            {/* Live Strength Bar Only ( Checklist is tooltip/collapsed for 100vh constraint ) */}
+            {/* Live Strength Bar Only */}
             {formData.password && (
-              <div style={{ marginTop: 6, position: 'relative' }} className="strength-bar-tooltip-wrap">
+              <div style={{ marginTop: 6, position: 'relative' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 700, color: pwStrength.color, marginBottom: 2 }}>
                   <span>Strength: {pwStrength.label}</span>
                 </div>
-                <div style={{ height: 4, background: 'var(--color-surface-2)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: 4, background: 'var(--color-surface-2)', borderRadius: 2, overflow: 'hidden', marginBottom: 6 }}>
                   <div style={{ height: '100%', width: `${pwStrength.score}%`, background: pwStrength.color, transition: 'all 200ms ease' }} />
                 </div>
+                {/* Requirements Checklist */}
+                {!allPwChecksPass && (
+                  <div style={{ padding: '6px 8px', borderRadius: 'var(--radius-sm)', background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', fontSize: '10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <div style={{ color: pwChecks.length ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {pwChecks.length ? '✓' : '✕'} 8-64 characters
+                    </div>
+                    <div style={{ color: pwChecks.upper ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {pwChecks.upper ? '✓' : '✕'} One uppercase letter (A-Z)
+                    </div>
+                    <div style={{ color: pwChecks.lower ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {pwChecks.lower ? '✓' : '✕'} One lowercase letter (a-z)
+                    </div>
+                    <div style={{ color: pwChecks.number ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {pwChecks.number ? '✓' : '✕'} One number (0-9)
+                    </div>
+                    <div style={{ color: pwChecks.special ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {pwChecks.special ? '✓' : '✕'} One special character
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
