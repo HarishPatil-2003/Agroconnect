@@ -1,11 +1,37 @@
 const nodemailer = require('nodemailer');
 const { getCircuitBreaker } = require('./circuitBreaker');
 
+// ── SMTP timeout values ──────────────────────────────────────────────────────
+// Nodemailer timeouts (set in getTransporter below):
+const SMTP_CONNECTION_TIMEOUT = Number(process.env.SMTP_CONNECTION_TIMEOUT) || 15000;
+const SMTP_GREETING_TIMEOUT   = Number(process.env.SMTP_GREETING_TIMEOUT)   || 15000;
+const SMTP_SOCKET_TIMEOUT     = Number(process.env.SMTP_SOCKET_TIMEOUT)     || 15000;
+
+// Circuit Breaker timeout — MUST always exceed the largest Nodemailer timeout.
+// The Circuit Breaker wraps the entire SMTP call in Promise.race(); if it fires
+// before Nodemailer's own timeout, the real SMTP error (ETIMEDOUT, 535, etc.) is
+// silently replaced by "CircuitBreaker call timed out" — which gives no diagnostic
+// information at all.
+// Rule enforced below: CB timeout = max(Nodemailer timeouts) + 5 000 ms safety margin.
+const SMTP_CIRCUIT_TIMEOUT_CONFIGURED = Number(process.env.SMTP_CIRCUIT_TIMEOUT) || 30000;
+const SMTP_NODEMAILER_MAX = Math.max(SMTP_CONNECTION_TIMEOUT, SMTP_GREETING_TIMEOUT, SMTP_SOCKET_TIMEOUT);
+const SMTP_CIRCUIT_TIMEOUT = Math.max(SMTP_CIRCUIT_TIMEOUT_CONFIGURED, SMTP_NODEMAILER_MAX + 5000);
+
+// ── Startup diagnostic log ────────────────────────────────────────────────────
+console.log(
+  `⚙️  [SMTP CONFIG] Timeouts:\n` +
+  `     connectionTimeout : ${SMTP_CONNECTION_TIMEOUT} ms\n` +
+  `     greetingTimeout   : ${SMTP_GREETING_TIMEOUT} ms\n` +
+  `     socketTimeout     : ${SMTP_SOCKET_TIMEOUT} ms\n` +
+  `     CircuitBreaker    : ${SMTP_CIRCUIT_TIMEOUT} ms  (env SMTP_CIRCUIT_TIMEOUT=${process.env.SMTP_CIRCUIT_TIMEOUT || 'not set, using default 30000'})\n` +
+  `     CB > max(NM)? ${SMTP_CIRCUIT_TIMEOUT > SMTP_NODEMAILER_MAX ? '✅ YES — CircuitBreaker will not mask Nodemailer errors' : '❌ NO  — CircuitBreaker timeout is too short!'}`
+);
+
 const emailBreaker = getCircuitBreaker('SMTP_Email_Service', {
   failureThreshold: 3,
-  timeoutMs: 5000,
-  resetTimeoutMs: 15000,
-  maxConcurrency: 5
+  timeoutMs:        SMTP_CIRCUIT_TIMEOUT,  // now always > Nodemailer's largest timeout
+  resetTimeoutMs:   15000,
+  maxConcurrency:   5
 });
 
 /**
@@ -39,12 +65,11 @@ const getTransporter = () => {
     tls: {
       servername: 'smtp.gmail.com'
     },
-    // Increased from 5000/3000/5000 ms — cloud environments (Render) have
-    // higher network latency reaching external SMTP servers. 15 s gives enough
-    // headroom for the full TCP+TLS handshake without false-positive timeouts.
-    connectionTimeout: 15000,
-    greetingTimeout:   15000,
-    socketTimeout:     15000
+    // Use the module-level constants so all timeout values are defined in one place
+    // and the Circuit Breaker calculation above can reference them.
+    connectionTimeout: SMTP_CONNECTION_TIMEOUT,
+    greetingTimeout:   SMTP_GREETING_TIMEOUT,
+    socketTimeout:     SMTP_SOCKET_TIMEOUT
   });
 
   return { transporter, user };
@@ -196,14 +221,41 @@ const sendOtpEmail = async (email, otp, name = 'Valued User', type = 'registrati
         console.log(`✅ [SMTP LOG] OTP email successfully delivered to ${email} via ${user}`);
         return { success: true, method: 'smtp' };
       } catch (smtpErr) {
-        console.error(`❌ [SMTP ERROR] Failed to deliver OTP email to ${email}:`, smtpErr.message);
-        throw smtpErr; // re-throw so CircuitBreaker registers the failure
+        // Log the full Nodemailer error so real causes are visible in Render logs.
+        // smtpErr.code identifies the failure class:
+        //   ETIMEDOUT    → network block or IPv6 unreachable
+        //   ECONNREFUSED → port closed (firewall)
+        //   ESOCKET      → TLS/certificate failure
+        //   (smtp code)  → e.g. 535 = wrong App Password, 534 = need App Password
+        console.error(
+          `❌ [SMTP ERROR] Delivery failed to ${email}:\n` +
+          `  message : ${smtpErr.message}\n` +
+          `  code    : ${smtpErr.code     || '—'}\n` +
+          `  errno   : ${smtpErr.errno    || '—'}\n` +
+          `  address : ${smtpErr.address  || '—'}  ← resolved IP that was dialled\n` +
+          `  port    : ${smtpErr.port     || '—'}\n` +
+          `  command : ${smtpErr.command  || '—'}  ← SMTP command that failed\n` +
+          `  response: ${smtpErr.response || '—'}  ← raw SMTP server response`
+        );
+        throw smtpErr; // re-throw original — preserves all diagnostic fields
       }
     },
     async (err) => {
-      // CircuitBreaker fallback — surface the real error, never log the OTP
-      console.error(`❌ [EMAIL CIRCUIT BREAKER] SMTP delivery failed for ${email}. Circuit open. Error: ${err.message}`);
-      throw new Error(`Email delivery failed: ${err.message}`);
+      // Fallback: re-throw the ORIGINAL error from Nodemailer (or the CB timeout
+      // error if the CB fired first). Do NOT wrap in `new Error()` — that destroys
+      // err.code, err.errno, err.address, err.port, err.command which are essential
+      // for diagnosing whether the failure is a network block or a credential error.
+      console.error(
+        `❌ [EMAIL CIRCUIT BREAKER] SMTP delivery failed for ${email}.\n` +
+        `  CB state: ${emailBreaker.state} | failures: ${emailBreaker.failureCount}/${emailBreaker.failureThreshold}\n` +
+        `  error   : ${err.message}\n` +
+        `  code    : ${err.code    || '—'}\n` +
+        `  address : ${err.address || '—'}\n` +
+        `  command : ${err.command || '—'}`
+      );
+      // Attach a human-readable prefix to the message while keeping all fields
+      err.message = `Email delivery failed: ${err.message}`;
+      throw err;  // throw original object — caller sees code/errno/address intact
     }
   );
 };
