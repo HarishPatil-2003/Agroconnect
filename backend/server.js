@@ -1,4 +1,11 @@
 // server.js
+// Force IPv4 DNS resolution before ANY network imports.
+// Render (and many cloud providers) default to IPv6-first resolution, which can
+// cause SMTP connections to smtp.gmail.com to time out because Gmail's SMTP
+// servers only accept connections on IPv4 addresses.
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
+
 const express  = require('express');
 const mongoose = require('mongoose');
 const cors     = require('cors');
@@ -165,6 +172,39 @@ app.use('/api/chats', require('./routes/chats'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/schemes', require('./routes/schemes'));
 app.use('/api/stats', require('./routes/stats'));
+
+// ── Diagnostic: GET /api/test-email ─────────────────────────────────────────
+// Temporary endpoint to verify SMTP connectivity from inside Render's network.
+// Call it with: GET https://<render-url>/api/test-email?to=you@gmail.com
+// Remove or protect with auth middleware before shipping to production users.
+const { sendOtpEmail } = require('./utils/email');
+app.get('/api/test-email', async (req, res) => {
+  const to = req.query.to || (process.env.EMAIL_USER || process.env.SMTP_USER);
+  if (!to) {
+    return res.status(400).json({ ok: false, message: 'Pass ?to=your@email.com or set EMAIL_USER.' });
+  }
+
+  console.log(`\n📧 [TEST EMAIL] Sending test OTP to: ${to}`);
+  const testOtp = '0000'; // fixed placeholder — not stored anywhere
+  try {
+    const result = await sendOtpEmail(to, testOtp, 'Test User', 'registration');
+    console.log(`✅ [TEST EMAIL] Delivered successfully to ${to}`);
+    return res.json({ ok: true, message: `Test email delivered to ${to}`, result });
+  } catch (err) {
+    // Expose the full SMTP error object so we can diagnose infrastructure blocks
+    const detail = {
+      message : err.message,
+      code    : err.code    || null,   // e.g. ETIMEDOUT, ECONNREFUSED, ESOCKET
+      errno   : err.errno   || null,
+      address : err.address || null,   // resolved IP — confirms IPv4 vs IPv6
+      port    : err.port    || null,
+      command : err.command || null,   // SMTP command that failed (e.g. CONNECT)
+      response: err.response || null,  // raw SMTP server response line
+    };
+    console.error(`❌ [TEST EMAIL] Delivery failed to ${to}:`, detail);
+    return res.status(502).json({ ok: false, error: detail });
+  }
+});
 
 // Server port
 const PORT = process.env.PORT || 5001;

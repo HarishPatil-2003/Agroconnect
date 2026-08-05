@@ -33,12 +33,18 @@ const getTransporter = () => {
       user,
       pass
     },
+    // Use TLS SNI servername instead of rejectUnauthorized:false.
+    // This correctly identifies the target host during the TLS handshake,
+    // which is required by Gmail's SMTP servers.
     tls: {
-      rejectUnauthorized: false
+      servername: 'smtp.gmail.com'
     },
-    connectionTimeout: 5000,
-    greetingTimeout: 3000,
-    socketTimeout: 5000
+    // Increased from 5000/3000/5000 ms — cloud environments (Render) have
+    // higher network latency reaching external SMTP servers. 15 s gives enough
+    // headroom for the full TCP+TLS handshake without false-positive timeouts.
+    connectionTimeout: 15000,
+    greetingTimeout:   15000,
+    socketTimeout:     15000
   });
 
   return { transporter, user };
@@ -49,8 +55,10 @@ const getTransporter = () => {
  * Logs clearly if credentials are missing so the operator knows exactly what to fix.
  */
 const verifySmtpConnection = async () => {
+  const dns  = require('dns').promises;
   const emailUser = process.env.EMAIL_USER || process.env.SMTP_USER;
   const emailPass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
+  const smtpHost  = process.env.SMTP_HOST  || 'smtp.gmail.com';
 
   if (!emailUser) {
     console.error('❌ CRITICAL ERROR: EMAIL_USER (or SMTP_USER) is missing in .env — OTP emails will NOT be sent!');
@@ -62,6 +70,22 @@ const verifySmtpConnection = async () => {
     return false;
   }
 
+  // ── DNS probe: confirm which IP address Render resolves smtp.gmail.com to ──
+  // This tells us whether IPv4 or IPv6 was chosen, proving whether the
+  // dns.setDefaultResultOrder('ipv4first') fix at startup actually took effect.
+  try {
+    const addresses = await dns.lookup(smtpHost, { all: true });
+    const summary = addresses.map(a => `${a.address} (IPv${a.family})`).join(', ');
+    console.log(`🔍 [SMTP DNS] ${smtpHost} resolves to: ${summary}`);
+    const usedAddress = await dns.lookup(smtpHost);
+    console.log(`🔍 [SMTP DNS] Active address used for connection: ${usedAddress.address} (IPv${usedAddress.family})`);
+    if (usedAddress.family === 6) {
+      console.warn('⚠️  [SMTP DNS] IPv6 address selected — Gmail SMTP may not respond. Force IPv4 in dns.setDefaultResultOrder.');
+    }
+  } catch (dnsErr) {
+    console.warn(`⚠️  [SMTP DNS] Could not resolve ${smtpHost}: ${dnsErr.message}`);
+  }
+
   const { transporter, user } = getTransporter();
 
   try {
@@ -69,7 +93,21 @@ const verifySmtpConnection = async () => {
     console.log(`✅ SMTP Connection Verified Successfully! Connected as: ${user}`);
     return true;
   } catch (err) {
-    console.error(`❌ CRITICAL ERROR: SMTP Verification Failed for ${user}: ${err.message}`);
+    // Log every useful field so we can distinguish:
+    //   ETIMEDOUT  → network block (cloud firewall / IPv6 unreachable)
+    //   ECONNREFUSED → port closed
+    //   ESOCKET    → TLS/SSL error
+    //   535        → bad credentials (App Password wrong / not enabled)
+    console.error(
+      `❌ CRITICAL ERROR: SMTP Verification Failed for ${user}:\n` +
+      `  message : ${err.message}\n` +
+      `  code    : ${err.code    || '—'}\n` +
+      `  errno   : ${err.errno   || '—'}\n` +
+      `  address : ${err.address || '—'}  ← the resolved IP that was dialled\n` +
+      `  port    : ${err.port    || '—'}\n` +
+      `  command : ${err.command || '—'}  ← SMTP command that failed\n` +
+      `  response: ${err.response || '—'}  ← raw SMTP server response`
+    );
     return false;
   }
 };
