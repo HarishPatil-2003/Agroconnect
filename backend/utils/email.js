@@ -180,7 +180,7 @@ const sendOtpEmail = async (email, otp, name = 'Valued User', type = 'registrati
         </div>
         <div class="content">
           <h3 style="color: #0F172A; margin-top: 0;">Hello ${name},</h3>
-          <p>Thank you for registering with AgroConnect. Please use the 6-digit verification code below to ${type === 'reset' ? 'reset your account password' : 'verify your account'}:</p>
+          <p>Thank you for registering with AgroConnect. Please use the 4-digit verification code below to ${type === 'reset' ? 'reset your account password' : 'verify your account'}:</p>
 
           <div class="otp-box">
             <div style="font-size: 12px; text-transform: uppercase; color: #166534; font-weight: 800; letter-spacing: 1px;">Your OTP Code</div>

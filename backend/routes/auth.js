@@ -43,7 +43,14 @@ router.post(
   authLimiter,
   validate(registerSchema),
   async (req, res) => {
-    console.log(`\n📥 [AUTH REQ] POST /api/auth/register - Email: ${req.body.email}`);
+    console.log(`\n📥 [AUTH REQ] POST /api/auth/register`);
+    console.log(`[AUTH REQ] Request body:`, {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      role: req.body.role,
+      password: req.body.password ? '***' : '(missing)'
+    });
     
     const { name, email, phone, password, role, address } = req.body;
     const clean = phone.replace(/[^0-9]/g, '');
@@ -57,7 +64,7 @@ router.post(
       const existingEmail = await User.findOne({ email: normalizedEmail });
       if (existingEmail) {
         console.warn(`❌ [DUPLICATE] Email already registered: ${normalizedEmail}`);
-        return res.status(400).json({ message: 'Email address is already registered.' });
+        return res.status(409).json({ message: 'Email address is already registered.' });
       }
 
       // Check Duplicate Phone
@@ -108,7 +115,7 @@ router.post(
       }
 
       res.status(201).json({
-        message: 'Registration successful! A 6-digit verification code has been sent to your email.',
+        message: 'Registration successful! A 4-digit verification code has been sent to your email.',
         email: user.email,
         requiresVerification: true,
         devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined

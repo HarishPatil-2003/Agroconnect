@@ -191,7 +191,16 @@ const Register = ({ mode, setMode }) => {
         state: { devOtp: res.devOtp }
       });
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please verify your information.');
+      // Show the actual server message when the backend returned one
+      // Distinguish Axios timeout (ECONNABORTED) from network failure from real server errors
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('The server is taking too long to respond (SMTP delivery delay). Please wait 30 seconds and try again.');
+      } else if (!err.response) {
+        setError('Network error: unable to reach the server. Check your internet connection.');
+      } else {
+        // Real server error — show the exact backend message
+        setError(err.response?.data?.message || 'Registration failed. Please verify your information.');
+      }
     } finally {
       setLoading(false);
     }

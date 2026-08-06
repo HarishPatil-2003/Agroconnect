@@ -13,7 +13,7 @@ if (import.meta.env.DEV) {
 // Axios instance using config/proxy (backend on 5001)
 const api = axios.create({
   baseURL: cleanedBaseURL,
-  timeout: 10000, // 10 seconds timeout limit
+  timeout: 35000, // 35 seconds — must exceed SMTP timeouts (15s connect + 15s greeting + margin)
   withCredentials: true, // Crucial for sending/receiving HTTP-Only cookies cross-origin
 });
 

@@ -4,7 +4,8 @@ import api from '../utils/auth';
 import { NotificationService } from '../services/NotificationService';
 
 // Set default timeout on raw Axios instances to avoid hanging
-axios.defaults.timeout = 10000;
+// 35 seconds — must be longer than SMTP delivery (15s connect + 15s greeting + margin)
+axios.defaults.timeout = 35000;
 
 const AuthContext = createContext(null);
 
