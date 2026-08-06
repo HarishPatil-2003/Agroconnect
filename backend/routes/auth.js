@@ -292,7 +292,12 @@ router.post(
   authLimiter,
   validate(loginSchema),
   async (req, res) => {
-    console.log(`\n📥 [AUTH REQ] POST /api/auth/login - Raw email: "${req.body.email}"`);
+    console.log(`\n📥 [AUTH REQ] POST /api/auth/login`);
+    console.log(`[LOGIN] Raw body received:`, {
+      email: req.body.email,
+      password: req.body.password ? `[present, length=${req.body.password.length}]` : '(missing!)'
+    });
+    console.log(`[LOGIN] DB name: ${require('mongoose').connection.db?.databaseName || '(not connected)'}`);
 
     const { email, password } = req.body;
 
@@ -311,9 +316,18 @@ router.post(
       const user = await User.findOne({ email: normalizedEmail });
       if (!user) {
         console.warn(`❌ [LOGIN STEP 2] No document found in DB for email: "${normalizedEmail}"`);
-        return res.status(400).json({ message: 'Invalid email or password.' });
+        console.warn(`[LOGIN STEP 2] DB name: ${require('mongoose').connection.db?.databaseName}`);
+        return res.status(400).json({
+          message: 'User not found. Check your email or register first.',
+          debug: process.env.NODE_ENV !== 'production' ? { normalizedEmail, dbName: require('mongoose').connection.db?.databaseName } : undefined
+        });
       }
-      console.log(`✅ [LOGIN STEP 2] User found — ID: ${user._id} | storedEmail: "${user.email}" | isVerified: ${user.isVerified} | loginAttempts: ${user.loginAttempts}`);
+      console.log(`✅ [LOGIN STEP 2] User found`);
+      console.log(`[LOGIN STEP 2] _id      : ${user._id}`);
+      console.log(`[LOGIN STEP 2] storedEmail : "${user.email}"`);
+      console.log(`[LOGIN STEP 2] hashPrefix  : ${user.password ? user.password.slice(0,10) : 'MISSING!'}`);
+      console.log(`[LOGIN STEP 2] isVerified  : ${user.isVerified}`);
+      console.log(`[LOGIN STEP 2] loginAttempts: ${user.loginAttempts} | lockUntil: ${user.lockUntil}`);
 
       // ── STEP 3: Check account lockout BEFORE bcrypt (saves CPU on locked accts)
       if (user.lockUntil && user.lockUntil > Date.now()) {
@@ -338,8 +352,9 @@ router.post(
           console.warn(`🔒 [LOGIN STEP 4] 5 failed attempts — Account "${normalizedEmail}" locked for 15 mins.`);
         }
         await user.save();
-        console.warn(`❌ [LOGIN STEP 4] Password mismatch for "${normalizedEmail}" — Attempt ${user.loginAttempts}/5`);
-        return res.status(400).json({ message: 'Invalid email or password.' });
+        console.warn(`❌ [LOGIN STEP 4] bcrypt.compare=false for "${normalizedEmail}" — Attempt ${user.loginAttempts}/5`);
+        console.warn(`[LOGIN STEP 4] Input password length: ${password.length} | Hash prefix: ${user.password?.slice(0,10)}`);
+        return res.status(400).json({ message: 'Password is incorrect. Please try again.' });
       }
 
       // ── STEP 5: Password matched — reset lockout counters ────────────────────
